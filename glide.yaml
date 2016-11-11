@@ -1,0 +1,6 @@
+package: github.com/n3integration/terraform-godaddy
+import:
+- package: github.com/hashicorp/terraform
+  version: ^0.7.10
+  subpackages:
+  - plugin
