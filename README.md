@@ -3,10 +3,10 @@
 ## Installation
 
 ```bash
-cd ~ && mkdir -p .terraform/plugins
-[ -f ~/.terraformrc ] || cat <-EOF>> ~/.terraformrc
+mkdir -p ~/.terraform/plugins
+[ -f ~/.terraformrc ] || cat > ~/.terraformrc <<EOF
 providers {
-  godaddy = ~/.terraform/plugins/godaddy
+  godaddy = "$HOME/.terraform/plugins/terraform-godaddy"
 }
 EOF
 ```
