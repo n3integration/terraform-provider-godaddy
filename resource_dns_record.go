@@ -94,14 +94,15 @@ func resourceDomainRecord() *schema.Resource {
 
 func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*GoDaddyClient)
+	customer := d.Get("customer").(string)
+	domain := d.Get("domain").(string)
+
 	log.Println("Fetching domain records...")
-	records, err := client.GetDomainRecords(
-		d.Get("customer").(string),
-		d.Get("domain").(string),
-	)
+	records, err := client.GetDomainRecords(customer, domain)
 	if err != nil {
 		return fmt.Errorf("couldn't find domain record: ", err.Error())
 	}
+
 	return populateResourceDataFromResponse(records, d)
 }
 
@@ -111,6 +112,14 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		return err
 	}
+
+	log.Println("Fetching domain info...")
+	if domain, err := client.GetDomain(r.Customer, r.Domain); err != nil {
+		return fmt.Errorf("couldn't find domain: ", err.Error())
+	} else {
+		d.SetId(string(domain.ID))
+	}
+
 	log.Println("Updating", r.Domain, "domain records...")
 	return client.UpdateDomainRecords(r.Customer, r.Domain, r.Records)
 }

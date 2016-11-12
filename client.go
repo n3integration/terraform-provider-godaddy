@@ -16,6 +16,7 @@ const (
 	AUTHORIZATION  = "Authorization"
 	CUSTOMER_ID    = "X-Shopper-Id"
 	DOMAIN_RECORDS = "%s/v1/domains/%s/records"
+	DOMAINS        = "%s/v1/domains/%s"
 )
 
 // GoDaddyClient is a GoDaddy API client
@@ -50,6 +51,22 @@ func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
 			Transport: netTransport,
 		},
 	}, nil
+}
+
+// GetDomain fetches the details for the provided domain
+func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
+	url := fmt.Sprintf(DOMAINS, c.baseURL, domain)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	d := new(Domain)
+	if err := c.execute(customerID, req, &d); err != nil {
+		return nil, err
+	}
+	return d, nil
 }
 
 // GetDomainRecords fetches all of the existing records for the provided domain

@@ -23,6 +23,13 @@ var supportedTypes = []string{
 	"A", "AAAA", "CNAME", "NS", "SOA", "TXT",
 }
 
+// Domain encapsulates a domain resource
+type Domain struct {
+	ID     int64  `json:"domainId"`
+	Name   string `json:"domain"`
+	Status string `json:"status"`
+}
+
 // DomainRecord encapsulates a domain record resource
 type DomainRecord struct {
 	Type string `json:"type,omitempty"`
