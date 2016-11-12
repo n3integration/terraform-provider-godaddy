@@ -9,6 +9,7 @@ _obj
 _test
 .DS_Store
 vendor
+testdata
 
 # Architecture specific extensions/prefixes
 *.[568vq]
