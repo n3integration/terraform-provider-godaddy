@@ -17,9 +17,12 @@ EOF
 ```
 
 ## Usage
+If `key` and `secret` aren't provided under the `godaddy` `provider`, they are expected to be exposed as environment variables: `KEY` and `SECRET`.
 
 ```terraform
 provider "godaddy" {
+  key = "abc"
+  secret = "123"
   baseurl = "https://api.godaddy.com"
 }
 

@@ -50,7 +50,7 @@ func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
 		return nil, fmt.Errorf("ttl must be a positive value")
 	}
 	if !isSupportedType(t) {
-		return nil, fmt.Errorf("type must be one of: ", supportedTypes)
+		return nil, fmt.Errorf("type must be one of: %s", supportedTypes)
 	}
 	return &DomainRecord{
 		Name: name,

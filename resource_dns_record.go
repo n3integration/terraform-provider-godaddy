@@ -48,8 +48,8 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 
 func resourceDomainRecord() *schema.Resource {
 	return &schema.Resource{
-		Read:   resourceDomainRecordRead,
 		Create: resourceDomainRecordUpdate,
+		Read:   resourceDomainRecordRead,
 		Update: resourceDomainRecordUpdate,
 		Delete: resourceDomainRecordUpdate,
 
