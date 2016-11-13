@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -11,6 +12,22 @@ type domainRecordResource struct {
 	Customer string
 	Domain   string
 	Records  []*DomainRecord
+}
+
+var defaultRecords = []*DomainRecord{
+	// A Records
+	&DomainRecord{Type: "A", Name: "@", Data: "50.63.202.43", TTL: 600},
+	// CNAME Records
+	&DomainRecord{Type: "CNAME", Name: "email", Data: "email.secureserver.net", TTL: 3600},
+	&DomainRecord{Type: "CNAME", Name: "ftp", Data: "@", TTL: 3600},
+	&DomainRecord{Type: "CNAME", Name: "www", Data: "@", TTL: 3600},
+	&DomainRecord{Type: "CNAME", Name: "_domainconnect", Data: "_domainconnect.gd.domaincontrol.com", TTL: 3600},
+	// MX Records
+	&DomainRecord{Type: "MX", Name: "@", Data: "mailstore1.secureserver.net", TTL: 3600, Priority: 10},
+	&DomainRecord{Type: "MX", Name: "@", Data: "smtp.secureserver.net", TTL: 3600, Priority: 0},
+	// NS Records
+	&DomainRecord{Type: "NS", Name: "@", Data: "ns45.domaincontrol.com", TTL: 3600},
+	&DomainRecord{Type: "NS", Name: "@", Data: "ns46.domaincontrol.com", TTL: 3600},
 }
 
 func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, error) {
@@ -51,14 +68,15 @@ func resourceDomainRecord() *schema.Resource {
 		Create: resourceDomainRecordUpdate,
 		Read:   resourceDomainRecordRead,
 		Update: resourceDomainRecordUpdate,
-		Delete: resourceDomainRecordUpdate,
+		Delete: resourceDomainRecordRestore,
 
 		Schema: map[string]*schema.Schema{
-			// Required
+			// Optional
 			"customer": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			// Required
 			"domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -97,7 +115,7 @@ func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
 	customer := d.Get("customer").(string)
 	domain := d.Get("domain").(string)
 
-	log.Println("Fetching domain records...")
+	log.Println("Fetching", domain, "records...")
 	records, err := client.GetDomainRecords(customer, domain)
 	if err != nil {
 		return fmt.Errorf("couldn't find domain record: ", err.Error())
@@ -113,15 +131,37 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	log.Println("Fetching domain info...")
-	if domain, err := client.GetDomain(r.Customer, r.Domain); err != nil {
-		return fmt.Errorf("couldn't find domain: ", err.Error())
-	} else {
-		d.SetId(string(domain.ID))
+	if err = populateDomainInfo(client, &r, d); err != nil {
+		return err
 	}
 
 	log.Println("Updating", r.Domain, "domain records...")
 	return client.UpdateDomainRecords(r.Customer, r.Domain, r.Records)
+}
+
+func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*GoDaddyClient)
+	r, err := newDomainRecordResource(d)
+	if err != nil {
+		return err
+	}
+
+	if err = populateDomainInfo(client, &r, d); err != nil {
+		return err
+	}
+
+	log.Println("Restoring", r.Domain, "domain records...")
+	return client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords)
+}
+
+func populateDomainInfo(client *GoDaddyClient, r *domainRecordResource, d *schema.ResourceData) error {
+	log.Println("Fetching", r.Domain, "info...")
+	if domain, err := client.GetDomain(r.Customer, r.Domain); err != nil {
+		return fmt.Errorf("couldn't find domain: ", err.Error())
+	} else {
+		d.SetId(strconv.FormatInt(domain.ID, 10))
+	}
+	return nil
 }
 
 func populateResourceDataFromResponse(r []*DomainRecord, d *schema.ResourceData) error {

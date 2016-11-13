@@ -20,7 +20,7 @@ const (
 )
 
 var supportedTypes = []string{
-	"A", "AAAA", "CNAME", "NS", "SOA", "TXT",
+	"A", "AAAA", "CNAME", "MX", "NS", "SOA", "TXT",
 }
 
 // Domain encapsulates a domain resource
@@ -32,11 +32,11 @@ type Domain struct {
 
 // DomainRecord encapsulates a domain record resource
 type DomainRecord struct {
-	Type string `json:"type,omitempty"`
-	Name string `json:"name"`
-	Data string `json:"data"`
-	//Priority int    `json:"priority"`
-	TTL int `json:"ttl"`
+	Type     string `json:"type,omitempty"`
+	Name     string `json:"name"`
+	Data     string `json:"data"`
+	Priority int    `json:"priority,omitempty"`
+	TTL      int    `json:"ttl"`
 	//Service  string `json:"service"`
 	//Protocol string `json:"protocol"`
 	//Port     int    `json:"port"`
