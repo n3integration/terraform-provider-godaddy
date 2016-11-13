@@ -14,7 +14,8 @@ export GD_SECRET=123
 ## Installation
 
 ```bash
-curl -Ls https://github.com/n3integration/terraform-godaddy/releases/download/v0.0.2/terraform-godaddy-$(uname -s | tr A-Z a-z).tgz | gzip -dc | tar xf -
+export VERSION=0.0.2
+curl -Ls https://github.com/n3integration/terraform-godaddy/releases/download/v$VERSION/terraform-godaddy-$(uname -s | tr A-Z a-z)-$VERSION.tgz | gzip -dc | tar xf -
 mkdir -p ~/.terraform/plugins && mv terraform-godaddy ~/.terraform/plugins
 [ -f ~/.terraformrc ] || cat > ~/.terraformrc <<EOF
 providers {
