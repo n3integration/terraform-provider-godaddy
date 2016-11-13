@@ -12,14 +12,14 @@ func Provider() terraform.ResourceProvider {
 			"key": {
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("KEY", nil),
+				DefaultFunc: schema.EnvDefaultFunc("GD_KEY", nil),
 				Description: "GoDaddy API Key.",
 			},
 
 			"secret": {
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("SECRET", nil),
+				DefaultFunc: schema.EnvDefaultFunc("GD_SECRET", nil),
 				Description: "GoDaddy API Secret.",
 			},
 
