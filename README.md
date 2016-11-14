@@ -3,25 +3,18 @@
 
 [ ![Codeship Status for n3integration/terraform-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
 
+## Installation
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/n3integration/terraform-godaddy/master/install.sh)
+```
+
 ## API Key
 In order to leverage the GoDaddy APIs, an [API key](https://developer.godaddy.com/keys/) is required. The key pair can be optionally stored in environment variables.
 
 ```bash
 export GD_KEY=abc
 export GD_SECRET=123
-```
-
-## Installation
-
-```bash
-export VERSION=0.0.2
-curl -Ls https://github.com/n3integration/terraform-godaddy/releases/download/v$VERSION/terraform-godaddy-$(uname -s | tr A-Z a-z)-$VERSION.tgz | gzip -dc | tar xf -
-mkdir -p ~/.terraform/plugins && mv terraform-godaddy ~/.terraform/plugins
-[ -f ~/.terraformrc ] || cat > ~/.terraformrc <<EOF
-providers {
-  godaddy = "$HOME/.terraform/plugins/terraform-godaddy"
-}
-EOF
 ```
 
 ## Provider
