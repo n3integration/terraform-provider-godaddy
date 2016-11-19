@@ -1,7 +1,7 @@
 #!/bin/sh
 
 version=0.0.2
-os=$(uname -s | tr A-Z a-z)
+os=$(uname -s | tr '[:upper:]' '[:lower:]')
 
 case "$os" in
   "linux"|"darwin")
