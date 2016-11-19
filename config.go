@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// Config provides the provider's configuration
 type Config struct {
 	Key     string
 	Secret  string

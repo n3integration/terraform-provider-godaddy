@@ -13,10 +13,14 @@ import (
 )
 
 const (
-	AUTHORIZATION  = "Authorization"
-	CUSTOMER_ID    = "X-Shopper-Id"
-	DOMAIN_RECORDS = "%s/v1/domains/%s/records"
-	DOMAINS        = "%s/v1/domains/%s"
+	// Authorization header
+	Authorization = "Authorization"
+	// CustomerID header
+	CustomerID = "X-Shopper-Id"
+	// DomainRecords request path format
+	DomainRecords = "%s/v1/domains/%s/records"
+	// Domains request path format
+	Domains = "%s/v1/domains/%s"
 )
 
 // GoDaddyClient is a GoDaddy API client
@@ -55,7 +59,7 @@ func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
 
 // GetDomain fetches the details for the provided domain
 func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
-	url := fmt.Sprintf(DOMAINS, c.baseURL, domain)
+	url := fmt.Sprintf(Domains, c.baseURL, domain)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -71,7 +75,7 @@ func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
 
 // GetDomainRecords fetches all of the existing records for the provided domain
 func (c *GoDaddyClient) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
-	url := fmt.Sprintf(DOMAIN_RECORDS, c.baseURL, domain)
+	url := fmt.Sprintf(DomainRecords, c.baseURL, domain)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -92,7 +96,7 @@ func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records [
 		return err
 	}
 
-	url := fmt.Sprintf(DOMAIN_RECORDS, c.baseURL, domain)
+	url := fmt.Sprintf(DomainRecords, c.baseURL, domain)
 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(msg))
 	if err != nil {
 		return err
@@ -103,12 +107,12 @@ func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records [
 
 func (c *GoDaddyClient) execute(customerID string, req *http.Request, result interface{}) error {
 	if len(strings.TrimSpace(customerID)) > 0 {
-		req.Header.Set(CUSTOMER_ID, customerID)
+		req.Header.Set(CustomerID, customerID)
 	}
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(AUTHORIZATION, fmt.Sprintf("sso-key %s:%s", c.key, c.secret))
+	req.Header.Set(Authorization, fmt.Sprintf("sso-key %s:%s", c.key, c.secret))
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -164,7 +168,7 @@ func formatURL(baseURL string) (string, error) {
 	}
 
 	if url.Host == "" || url.Scheme == "" {
-		return "", fmt.Errorf("invalid baseUrl. expected format: scheme://host.")
+		return "", fmt.Errorf("invalid baseUrl. expected format: scheme://host")
 	}
 
 	return fmt.Sprintf("%s://%s", url.Scheme, url.Host), err

@@ -155,12 +155,16 @@ func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error
 }
 
 func populateDomainInfo(client *GoDaddyClient, r *domainRecordResource, d *schema.ResourceData) error {
+	var err error
+	var domain *Domain
+
 	log.Println("Fetching", r.Domain, "info...")
-	if domain, err := client.GetDomain(r.Customer, r.Domain); err != nil {
+	domain, err = client.GetDomain(r.Customer, r.Domain)
+	if err != nil {
 		return fmt.Errorf("couldn't find domain: ", err.Error())
-	} else {
-		d.SetId(strconv.FormatInt(domain.ID, 10))
 	}
+
+	d.SetId(strconv.FormatInt(domain.ID, 10))
 	return nil
 }
 

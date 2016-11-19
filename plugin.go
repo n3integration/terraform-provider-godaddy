@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	base_url = "https://api.godaddy.com/v1"
+	// BaseURL points to the GoDaddy API's base
+	BaseURL = "https://api.godaddy.com/v1"
 )
 
 func main() {

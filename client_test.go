@@ -28,7 +28,7 @@ func TestAuthFailure(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 
-	_, err = client.GetRecords("", "bogus.com")
+	_, err = client.GetDomainRecords("", "bogus.com")
 	assert.NotNil(t, err)
 }
 
@@ -37,7 +37,7 @@ func TestGetRecords(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 
-	records, err := client.GetRecords("", "n3integration.com")
+	records, err := client.GetDomainRecords("", "n3integration.com")
 	assert.Nil(t, err)
 	assert.NotNil(t, records)
 

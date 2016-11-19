@@ -9,13 +9,21 @@ import (
 type RecordType int
 
 const (
+	// A is an address record type
 	A RecordType = iota
+	// AAAA is an IPv6 address record type
 	AAAA
+	// CNAME is a Canonical record name (alias) type
 	CNAME
+	// MX is a mail exchange record type
 	MX
+	// NS is a name server record type
 	NS
+	// SOA is a start of authority record type
 	SOA
+	// SRV is a service locator type
 	SRV
+	// TXT is a text record type
 	TXT
 )
 
