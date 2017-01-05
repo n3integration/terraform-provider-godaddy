@@ -26,8 +26,7 @@ export GD_SECRET=123
 
 ## Provider
 
-If `key` and `secret` aren't provided under the `godaddy` `provider`, they are expected to be exposed as environment variables: `GD_KEY` and `GD_SECRET`. If the `baseurl` is
-not specified, the standard godaddy api test site is used instead.
+If `key` and `secret` aren't provided under the `godaddy` `provider`, they are expected to be exposed as environment variables: `GD_KEY` and `GD_SECRET`.
 
 ```terraform
 provider "godaddy" {
