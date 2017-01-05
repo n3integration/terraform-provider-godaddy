@@ -1,5 +1,5 @@
-hash: 082b511c4bf3a7894821460be37d69b8e099ed469f9d3eb702c6d2f3d084062f
-updated: 2016-11-11T20:39:18.440419966-05:00
+hash: 3bdaf89fc5c17389aa5c0a5e2b92bcdd023b762f84b43e3f6d41d51fef759869
+updated: 2017-01-04T05:56:31.431083165Z
 imports:
 - name: github.com/apparentlymart/go-cidr
   version: a3ebdb999b831ecb6ab8a226e31b07b2b9061c47
@@ -37,10 +37,6 @@ imports:
   version: 9fd32a8b3d3d3f9d43c341bfe098430e07609480
   subpackages:
   - netrc
-- name: github.com/davecgh/go-spew
-  version: 346938d642f2ec3594ed81d874461961cd0faa76
-  subpackages:
-  - spew
 - name: github.com/go-ini/ini
   version: 6e4869b434bd001f6983749881c7ead3545887d8
 - name: github.com/hashicorp/errwrap
@@ -73,12 +69,11 @@ imports:
   subpackages:
   - ast
 - name: github.com/hashicorp/terraform
-  version: fcf12bc46a34716652a5b9a4d7905361003293e7
+  version: dd2c6da4f6226b5ccd0601a15bba197fc223b1ec
   subpackages:
   - config
   - config/module
   - dag
-  - dot
   - flatmap
   - helper/experiment
   - helper/hashcode
@@ -106,6 +101,10 @@ imports:
   subpackages:
   - assert
 testImports:
+- name: github.com/davecgh/go-spew
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  subpackages:
+  - spew
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
