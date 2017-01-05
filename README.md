@@ -1,7 +1,14 @@
 # terraform-godaddy
-[Terraform](https://www.terraform.io/) plugin for managing domain records (v0.7.10)
+[Terraform](https://www.terraform.io/) plugin for managing domain records
 
 [ ![Codeship Status for n3integration/terraform-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
+
+<dl>
+  <dt>Terraform v0.7.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
+  <dt>Terraform v0.8.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.1.0</dd>
+<dl>
 
 ## Installation
 
@@ -26,7 +33,6 @@ not specified, the standard godaddy api test site is used instead.
 provider "godaddy" {
   key = "abc"
   secret = "123"
-  baseurl = "https://api.godaddy.com"
 }
 ```
 

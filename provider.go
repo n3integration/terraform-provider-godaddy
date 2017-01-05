@@ -27,7 +27,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Default:     "https://api.godaddy.com",
-				Description: "GoDaddy Base Url(defaults to testing).",
+				Description: "GoDaddy Base Url(defaults to production).",
 			},
 		},
 
