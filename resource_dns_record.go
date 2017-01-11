@@ -118,7 +118,7 @@ func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("Fetching", domain, "records...")
 	records, err := client.GetDomainRecords(customer, domain)
 	if err != nil {
-		return fmt.Errorf("couldn't find domain record: ", err.Error())
+		return fmt.Errorf("couldn't find domain record (%s): %s", domain, err.Error())
 	}
 
 	return populateResourceDataFromResponse(records, d)
@@ -161,7 +161,7 @@ func populateDomainInfo(client *GoDaddyClient, r *domainRecordResource, d *schem
 	log.Println("Fetching", r.Domain, "info...")
 	domain, err = client.GetDomain(r.Customer, r.Domain)
 	if err != nil {
-		return fmt.Errorf("couldn't find domain: ", err.Error())
+		return fmt.Errorf("couldn't find domain (%s): %s", r.Domain, err.Error())
 	}
 
 	d.SetId(strconv.FormatInt(domain.ID, 10))
