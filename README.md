@@ -7,7 +7,7 @@
   <dt>Terraform v0.7.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
   <dt>Terraform v0.8.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.1.1</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.0</dd>
 <dl>
 
 ## Installation
@@ -37,7 +37,9 @@ provider "godaddy" {
 
 ## Domain Record Resource
 A `godaddy_domain_record` resource requires a `domain`. If the domain is not registered under the account that owns the key, an optional `customer` number can be specified. 
-Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. The available types include:
+Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. Address and NameServer records can be 
+defined using shorthand-notation as `a_records = [""]` or `ns_records = [""]`, respectively unless you need to override the default time-to-live (3600). The available record 
+types include:
 
 * A
 * AAAA
@@ -51,19 +53,7 @@ resource "godaddy_domain_record" "default" {
   domain = "fancy-domain.com"
   customer = "1234"
 
-  record {
-    name = "@"
-    type = "A"
-    data = "192.168.1.2"
-    ttl = 3600
-  }
-
-  record {
-    name = "@"
-    type = "A"
-    data = "192.168.1.3"
-    ttl = 3600
-  }
+  a_records = ["192.168.1.2", "192.168.1.3"]
 
   record {
     name = "www"
@@ -72,25 +62,13 @@ resource "godaddy_domain_record" "default" {
     ttl = 3600
   }
 
-  record {
-    name = "@"
-    type = "NS"
-    data = "ns7.domains.com"
-    ttl = 3600
-  }
-
-  record {
-    name = "@"
-    type = "NS"
-    data = "ns6.domains.com"
-    ttl = 3600
-  }
+  ns_records = ["ns7.domains.com", "ns6.domains.com"]
 }
 ```
 
 ## License
 
-Copyright 2016 n3integration@gmail.com
+Copyright 2017 n3integration@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

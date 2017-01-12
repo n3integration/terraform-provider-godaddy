@@ -8,6 +8,9 @@ import (
 // RecordType is an enumeration of possible DNS record types
 type RecordType int
 
+// RecordFactory is a factory method for creating new DomainRecords
+type RecordFactory func(string) (*DomainRecord, error)
+
 const (
 	// A is an address record type
 	A RecordType = iota
@@ -25,6 +28,10 @@ const (
 	SRV
 	// TXT is a text record type
 	TXT
+)
+
+const (
+	DefaultTTL = 3600
 )
 
 var supportedTypes = []string{
@@ -55,11 +62,11 @@ type DomainRecord struct {
 func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
 	name = strings.TrimSpace(name)
 	data = strings.TrimSpace(data)
+	if err := ValidateData(data); err != nil {
+		return nil, err
+	}
 	if len(name) < 1 || len(name) > 255 {
 		return nil, fmt.Errorf("name must be between 1..255")
-	}
-	if len(data) < 1 || len(data) > 255 {
-		return nil, fmt.Errorf("data must be between 1..255")
 	}
 	if ttl < 0 {
 		return nil, fmt.Errorf("ttl must be a positive value")
@@ -73,6 +80,34 @@ func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
 		Data: data,
 		TTL:  ttl,
 	}, nil
+}
+
+// NewNSRecord constructs a nameserver record from the supplied data
+func NewNSRecord(data string) (*DomainRecord, error) {
+	return NewDomainRecord("@", "NS", data, DefaultTTL)
+}
+
+// NewARecord constructs a new address record from the supplied data
+func NewARecord(data string) (*DomainRecord, error) {
+	return NewDomainRecord("@", "A", data, DefaultTTL)
+}
+
+// ValidateData performs bounds checking on a data element
+func ValidateData(data string) error {
+	if len(data) < 1 || len(data) > 255 {
+		return fmt.Errorf("data must be between 1..255 characters in length")
+	}
+	return nil
+}
+
+// IsDefaultARecord is a predicate to place fetched A domain records into the appropriate bucket
+func IsDefaultARecord(record *DomainRecord) bool {
+	return record.Name == "@" && record.Type == "A" && record.TTL == DefaultTTL
+}
+
+// IsDefaultNSRecord is a predicate to place fetched NS domain records into the appropriate bucket
+func IsDefaultNSRecord(record *DomainRecord) bool {
+	return record.Name == "@" && record.Type == "NS" && record.TTL == DefaultTTL
 }
 
 func isSupportedType(recType string) bool {

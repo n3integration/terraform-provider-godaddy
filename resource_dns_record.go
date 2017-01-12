@@ -9,25 +9,27 @@ import (
 )
 
 type domainRecordResource struct {
-	Customer string
-	Domain   string
-	Records  []*DomainRecord
+	Customer  string
+	Domain    string
+	Records   []*DomainRecord
+	ARecords  []string
+	NSRecords []string
 }
 
 var defaultRecords = []*DomainRecord{
 	// A Records
 	&DomainRecord{Type: "A", Name: "@", Data: "50.63.202.43", TTL: 600},
 	// CNAME Records
-	&DomainRecord{Type: "CNAME", Name: "email", Data: "email.secureserver.net", TTL: 3600},
-	&DomainRecord{Type: "CNAME", Name: "ftp", Data: "@", TTL: 3600},
-	&DomainRecord{Type: "CNAME", Name: "www", Data: "@", TTL: 3600},
-	&DomainRecord{Type: "CNAME", Name: "_domainconnect", Data: "_domainconnect.gd.domaincontrol.com", TTL: 3600},
+	&DomainRecord{Type: "CNAME", Name: "email", Data: "email.secureserver.net", TTL: DefaultTTL},
+	&DomainRecord{Type: "CNAME", Name: "ftp", Data: "@", TTL: DefaultTTL},
+	&DomainRecord{Type: "CNAME", Name: "www", Data: "@", TTL: DefaultTTL},
+	&DomainRecord{Type: "CNAME", Name: "_domainconnect", Data: "_domainconnect.gd.domaincontrol.com", TTL: DefaultTTL},
 	// MX Records
-	&DomainRecord{Type: "MX", Name: "@", Data: "mailstore1.secureserver.net", TTL: 3600, Priority: 10},
-	&DomainRecord{Type: "MX", Name: "@", Data: "smtp.secureserver.net", TTL: 3600, Priority: 0},
+	&DomainRecord{Type: "MX", Name: "@", Data: "mailstore1.secureserver.net", TTL: DefaultTTL, Priority: 10},
+	&DomainRecord{Type: "MX", Name: "@", Data: "smtp.secureserver.net", TTL: DefaultTTL, Priority: 0},
 	// NS Records
-	&DomainRecord{Type: "NS", Name: "@", Data: "ns45.domaincontrol.com", TTL: 3600},
-	&DomainRecord{Type: "NS", Name: "@", Data: "ns46.domaincontrol.com", TTL: 3600},
+	&DomainRecord{Type: "NS", Name: "@", Data: "ns45.domaincontrol.com", TTL: DefaultTTL},
+	&DomainRecord{Type: "NS", Name: "@", Data: "ns46.domaincontrol.com", TTL: DefaultTTL},
 }
 
 func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, error) {
@@ -60,7 +62,41 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 		}
 	}
 
+	if attr, ok := d.GetOk("ns_records"); ok {
+		records := attr.([]interface{})
+		r.NSRecords = make([]string, len(records))
+		for i, rec := range records {
+			if err = ValidateData(rec.(string)); err != nil {
+				return r, err
+			}
+			r.NSRecords[i] = rec.(string)
+		}
+	}
+
+	if attr, ok := d.GetOk("a_records"); ok {
+		records := attr.([]interface{})
+		r.ARecords = make([]string, len(records))
+		for i, rec := range records {
+			if err = ValidateData(rec.(string)); err != nil {
+				return r, err
+			}
+			r.ARecords[i] = rec.(string)
+		}
+	}
+
 	return r, err
+}
+
+func (r *domainRecordResource) converge() {
+	r.mergeRecords(r.ARecords, NewARecord)
+	r.mergeRecords(r.NSRecords, NewNSRecord)
+}
+
+func (r *domainRecordResource) mergeRecords(list []string, factory RecordFactory) {
+	for _, data := range list {
+		record, _ := factory(data)
+		r.Records = append(r.Records, record)
+	}
 }
 
 func resourceDomainRecord() *schema.Resource {
@@ -101,10 +137,21 @@ func resourceDomainRecord() *schema.Resource {
 						"ttl": &schema.Schema{
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  3600,
+							Default:  DefaultTTL,
 						},
 					},
 				},
+			},
+			// Optional
+			"a_records": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"ns_records": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -136,6 +183,7 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	log.Println("Updating", r.Domain, "domain records...")
+	r.converge()
 	return client.UpdateDomainRecords(r.Customer, r.Domain, r.Records)
 }
 
@@ -169,7 +217,25 @@ func populateDomainInfo(client *GoDaddyClient, r *domainRecordResource, d *schem
 }
 
 func populateResourceDataFromResponse(r []*DomainRecord, d *schema.ResourceData) error {
-	d.Set("record", flattenRecords(r))
+	aRecords := make([]string, 0)
+	nsRecords := make([]string, 0)
+	records := make([]*DomainRecord, 0)
+
+	for _, rec := range r {
+		switch {
+		case IsDefaultNSRecord(rec):
+			nsRecords = append(nsRecords, rec.Data)
+		case IsDefaultARecord(rec):
+			aRecords = append(aRecords, rec.Data)
+		default:
+			records = append(records, rec)
+		}
+	}
+
+	d.Set("a_records", aRecords)
+	d.Set("ns_records", nsRecords)
+	d.Set("record", flattenRecords(records))
+
 	return nil
 }
 
