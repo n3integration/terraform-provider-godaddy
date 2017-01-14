@@ -13,8 +13,8 @@ import (
 var key, secret, baseURL string
 
 func init() {
-	key = os.Getenv("KEY")
-	secret = os.Getenv("SECRET")
+	key = os.Getenv("GD_KEY")
+	secret = os.Getenv("GD_SECRET")
 	baseURL = "https://api.godaddy.com"
 }
 
@@ -37,7 +37,24 @@ func TestGetRecords(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 
-	records, err := client.GetDomainRecords("", "n3integration.com")
+	getRecords(t, client, "n3integration.com")
+}
+
+func TestGetTooManyRecords(t *testing.T) {
+	client, err := NewClient(baseURL, key, secret)
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
+
+	for i := 0; i < 75; i++ {
+		_, err := getRecords(t, client, "n3integration.com")
+		if err != nil {
+			fmt.Println("Requests failing at", i+1)
+		}
+	}
+}
+
+func getRecords(t *testing.T, client *GoDaddyClient, domain string) ([]*DomainRecord, error) {
+	records, err := client.GetDomainRecords("", domain)
 	assert.Nil(t, err)
 	assert.NotNil(t, records)
 
@@ -48,4 +65,6 @@ func TestGetRecords(t *testing.T) {
 
 		fmt.Println("REC -->", rec)
 	}
+
+	return records, err
 }

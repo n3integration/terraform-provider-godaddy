@@ -13,14 +13,12 @@ import (
 )
 
 const (
-	// Authorization header
-	Authorization = "Authorization"
-	// CustomerID header
-	CustomerID = "X-Shopper-Id"
-	// DomainRecords request path format
-	DomainRecords = "%s/v1/domains/%s/records"
-	// Domains request path format
-	Domains = "%s/v1/domains/%s"
+	headerAuthorization = "Authorization"
+	headerCustomerID    = "X-Shopper-Id"
+	mediaTypeJSON       = "application/json"
+	pathDomainRecords   = "%s/v1/domains/%s/records"
+	pathDomains         = "%s/v1/domains/%s"
+	rateLimit           = 1 * time.Second
 )
 
 // GoDaddyClient is a GoDaddy API client
@@ -29,6 +27,24 @@ type GoDaddyClient struct {
 	key     string
 	secret  string
 	client  *http.Client
+}
+
+// rateLimitedTransport throttles API calls to GoDaddy. It appears that
+// the rate limit is 60 requests per minute, which can be throttled and
+// enforced at a maximum of one request/second.
+type rateLimitedTransport struct {
+	delegate http.RoundTripper
+	throttle time.Time
+}
+
+func (t *rateLimitedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if t.throttle.After(time.Now()) {
+		delta := t.throttle.Sub(time.Now())
+		time.Sleep(delta)
+	}
+
+	t.throttle = time.Now().Add(rateLimit)
+	return t.delegate.RoundTrip(req)
 }
 
 // NewClient constructs a new GoDaddy API client or an error if the supplied
@@ -51,15 +67,18 @@ func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
 		key:     strings.TrimSpace(key),
 		secret:  strings.TrimSpace(secret),
 		client: &http.Client{
-			Timeout:   time.Second * 30,
-			Transport: netTransport,
+			Timeout: time.Second * 30,
+			Transport: &rateLimitedTransport{
+				delegate: netTransport,
+				throttle: time.Now().Add(-(rateLimit)),
+			},
 		},
 	}, nil
 }
 
 // GetDomain fetches the details for the provided domain
 func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
-	url := fmt.Sprintf(Domains, c.baseURL, domain)
+	url := fmt.Sprintf(pathDomains, c.baseURL, domain)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -70,12 +89,13 @@ func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
 	if err := c.execute(customerID, req, &d); err != nil {
 		return nil, err
 	}
+
 	return d, nil
 }
 
 // GetDomainRecords fetches all of the existing records for the provided domain
 func (c *GoDaddyClient) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
-	url := fmt.Sprintf(DomainRecords, c.baseURL, domain)
+	url := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -86,6 +106,7 @@ func (c *GoDaddyClient) GetDomainRecords(customerID, domain string) ([]*DomainRe
 	if err := c.execute(customerID, req, &records); err != nil {
 		return nil, err
 	}
+
 	return records, nil
 }
 
@@ -96,7 +117,7 @@ func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records [
 		return err
 	}
 
-	url := fmt.Sprintf(DomainRecords, c.baseURL, domain)
+	url := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(msg))
 	if err != nil {
 		return err
@@ -107,12 +128,12 @@ func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records [
 
 func (c *GoDaddyClient) execute(customerID string, req *http.Request, result interface{}) error {
 	if len(strings.TrimSpace(customerID)) > 0 {
-		req.Header.Set(CustomerID, customerID)
+		req.Header.Set(headerCustomerID, customerID)
 	}
 
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(Authorization, fmt.Sprintf("sso-key %s:%s", c.key, c.secret))
+	req.Header.Set("Accept", mediaTypeJSON)
+	req.Header.Set("Content-Type", mediaTypeJSON)
+	req.Header.Set(headerAuthorization, fmt.Sprintf("sso-key %s:%s", c.key, c.secret))
 
 	resp, err := c.client.Do(req)
 	if err != nil {
