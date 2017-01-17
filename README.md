@@ -7,7 +7,7 @@
   <dt>Terraform v0.7.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
   <dt>Terraform v0.8.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.1</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.2</dd>
 <dl>
 
 ## Installation
@@ -38,7 +38,7 @@ provider "godaddy" {
 ## Domain Record Resource
 A `godaddy_domain_record` resource requires a `domain`. If the domain is not registered under the account that owns the key, an optional `customer` number can be specified. 
 Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. Address and NameServer records can be 
-defined using shorthand-notation as `a_records = [""]` or `ns_records = [""]`, respectively unless you need to override the default time-to-live (3600). The available record 
+defined using shorthand-notation as `addresses = [""]` or `nameservers = [""]`, respectively unless you need to override the default time-to-live (3600). The available record 
 types include:
 
 * A
@@ -49,11 +49,9 @@ types include:
 * TXT
 
 ```terraform
-resource "godaddy_domain_record" "default" {
-  domain = "fancy-domain.com"
-  customer = "1234"
-
-  a_records = ["192.168.1.2", "192.168.1.3"]
+resource "godaddy_domain_record" "gd-fancy-domain" {
+  domain   = "fancy-domain.com"
+  customer = "1234"                         // required if provider key does not belong to customer
 
   record {
     name = "www"
@@ -62,7 +60,8 @@ resource "godaddy_domain_record" "default" {
     ttl = 3600
   }
 
-  ns_records = ["ns7.domains.com", "ns6.domains.com"]
+  addresses   = ["192.168.1.2", "192.168.1.3"]
+  nameservers = ["ns7.domains.com", "ns6.domains.com"]
 }
 ```
 

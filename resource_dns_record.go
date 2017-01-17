@@ -62,7 +62,7 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 		}
 	}
 
-	if attr, ok := d.GetOk("ns_records"); ok {
+	if attr, ok := d.GetOk("nameservers"); ok {
 		records := attr.([]interface{})
 		r.NSRecords = make([]string, len(records))
 		for i, rec := range records {
@@ -73,7 +73,7 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 		}
 	}
 
-	if attr, ok := d.GetOk("a_records"); ok {
+	if attr, ok := d.GetOk("addresses"); ok {
 		records := attr.([]interface{})
 		r.ARecords = make([]string, len(records))
 		for i, rec := range records {
@@ -107,19 +107,29 @@ func resourceDomainRecord() *schema.Resource {
 		Delete: resourceDomainRecordRestore,
 
 		Schema: map[string]*schema.Schema{
-			// Optional
-			"customer": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			// Required
 			"domain": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// Optional
+			"addresses": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"customer": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"nameservers": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"record": &schema.Schema{
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -141,17 +151,6 @@ func resourceDomainRecord() *schema.Resource {
 						},
 					},
 				},
-			},
-			// Optional
-			"a_records": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"ns_records": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -232,8 +231,8 @@ func populateResourceDataFromResponse(r []*DomainRecord, d *schema.ResourceData)
 		}
 	}
 
-	d.Set("a_records", aRecords)
-	d.Set("ns_records", nsRecords)
+	d.Set("addresses", aRecords)
+	d.Set("nameservers", nsRecords)
 	d.Set("record", flattenRecords(records))
 
 	return nil
