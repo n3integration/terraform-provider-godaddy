@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -35,9 +36,13 @@ type GoDaddyClient struct {
 type rateLimitedTransport struct {
 	delegate http.RoundTripper
 	throttle time.Time
+	sync.Mutex
 }
 
 func (t *rateLimitedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.Lock()
+	defer t.Unlock()
+
 	if t.throttle.After(time.Now()) {
 		delta := t.throttle.Sub(time.Now())
 		time.Sleep(delta)
