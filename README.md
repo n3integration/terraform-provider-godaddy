@@ -9,7 +9,7 @@
   <dt>Terraform v0.8.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.3</dd>
   <dt>Terraform v0.9.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.4</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.3.0</dd>
 <dl>
 
 ## Installation
