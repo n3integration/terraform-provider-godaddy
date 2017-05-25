@@ -14,8 +14,8 @@
 
 ## Warning
 
-<span style="color:red"> *Applying this module like in the example below would wipe `fancy-domain.com` and leave it with only one CNAME record in it.*</span>
-<span style="color:red"> *Use with care.*</span>
+*Applying this module like in the example below would wipe `fancy-domain.com` and leave it with only one CNAME record in it.*
+*Use with care.*
 
 ## Installation
 
