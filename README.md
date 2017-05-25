@@ -12,6 +12,11 @@
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.3.0</dd>
 <dl>
 
+## Warning
+
+<span style="color:red"> *Applying this module like in the example below would wipe `fancy-domain.com` and leave it with only one CNAME record in it.*</span>
+<span style="color:red"> *Use with care.*</span>
+
 ## Installation
 
 ```bash
