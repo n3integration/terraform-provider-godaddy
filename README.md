@@ -69,8 +69,7 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
 
 ## Additional Information
 When applying the changes to your environment, Terraform compares the state of GoDaddy with the latest tfstate. Any delta between the two environments will be applied.
-Make sure that whatever settings exist remotely are also defined in your Terraform file unless you are okay with them being removed. To see how Terraform will apply
-the changes, it is recommended to first execute a dry run using `terraform plan`. This will help to ensure that there are no surprises.
+To see how Terraform will apply the changes, it is recommended to first execute a dry run using `terraform plan`. This will help to ensure that there are no surprises.
 
 ## License
 
