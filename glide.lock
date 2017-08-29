@@ -1,10 +1,12 @@
-hash: 9d8272d8b8d62b7cb4c76b084da629724d39e3986b719f87bd2364181c862081
-updated: 2017-04-26T00:04:25.491307667-05:00
+hash: b5a654ee3e868079c7441353c5aa8467ce6f2e4ea97de1fdb3f88e996dc749dd
+updated: 2017-08-28T21:00:26.995294435-04:00
 imports:
 - name: github.com/apparentlymart/go-cidr
   version: 7e4b007599d4e2076d9a81be723b3912852dda2c
   subpackages:
   - cidr
+- name: github.com/armon/go-radix
+  version: 1fca145dffbcaa8fe914309b1ec0cfc67500fe61
 - name: github.com/aws/aws-sdk-go
   version: fe4c33d5e201f595b450d08d9d7e36fedb2cbcf8
   subpackages:
@@ -36,14 +38,26 @@ imports:
   version: 9fd32a8b3d3d3f9d43c341bfe098430e07609480
   subpackages:
   - netrc
+- name: github.com/bgentry/speakeasy
+  version: 4aabc24848ce5fd31929f7d1e4ea74d3709c14cd
+- name: github.com/blang/semver
+  version: 2ee87856327ba09384cabd113bc6b5d174e9ec0f
+- name: github.com/davecgh/go-spew
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  subpackages:
+  - spew
 - name: github.com/go-ini/ini
   version: e7fea39b01aea8d5671f6858f0532f56e8bff3a5
 - name: github.com/hashicorp/errwrap
   version: 7554cd9344cec97297fa6649b055a8c98c2a1e55
+- name: github.com/hashicorp/go-cleanhttp
+  version: 3573b8b52aa7b37b9358d966a898feb387f62437
 - name: github.com/hashicorp/go-getter
   version: e48f67b534e614bf7fbd978fd0020f61a17b7527
   subpackages:
   - helper/url
+- name: github.com/hashicorp/go-hclog
+  version: b4e5765d1e5f00a0550911084f45f8214b5b83b9
 - name: github.com/hashicorp/go-multierror
   version: ed905158d87462226a13fe39ddf685ea65f1c11f
 - name: github.com/hashicorp/go-plugin
@@ -69,24 +83,35 @@ imports:
   - ast
   - parser
   - scanner
+- name: github.com/hashicorp/logutils
+  version: 0dc08b1671f34c4250ce212759ebd880f743d883
 - name: github.com/hashicorp/terraform
-  version: 1601af7a076fd03fe940455db7fd01dfa747c795
+  version: a1d06eb97378d097d4175c3284ea026937618477
   subpackages:
   - config
   - config/module
   - dag
   - flatmap
+  - helper/config
   - helper/experiment
   - helper/hashcode
   - helper/hilmapstructure
+  - helper/logging
+  - helper/resource
   - helper/schema
   - helper/shadow
+  - moduledeps
   - plugin
+  - plugin/discovery
   - terraform
 - name: github.com/hashicorp/yamux
   version: d1caa6c97c9fc1cc9e83bbe34d0603f9ff0ce8bd
 - name: github.com/jmespath/go-jmespath
   version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
+- name: github.com/mattn/go-isatty
+  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: github.com/mitchellh/cli
+  version: 0ce7cd515f64496ee660ab19f6bbf373945d3af0
 - name: github.com/mitchellh/copystructure
   version: f81071c9d77b7931f78c90b416a074ecdc50e959
 - name: github.com/mitchellh/go-homedir
@@ -97,17 +122,40 @@ imports:
   version: cc8532a8e9a55ea36402aa21efdf403a60d34096
 - name: github.com/mitchellh/reflectwalk
   version: 417edcfd99a4d472c262e58f22b4bfe97580f03e
+- name: github.com/posener/complete
+  version: 2100d1b06c06462a8a47bfc41a7f24a5d60a1420
+  subpackages:
+  - cmd
+  - cmd/install
+  - match
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
 - name: github.com/stretchr/testify
   version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
   subpackages:
   - assert
-testImports:
-- name: github.com/davecgh/go-spew
-  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+- name: golang.org/x/crypto
+  version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
-  - spew
+  - bcrypt
+  - blowfish
+  - cast5
+  - openpgp
+  - openpgp/armor
+  - openpgp/elgamal
+  - openpgp/errors
+  - openpgp/packet
+  - openpgp/s2k
+- name: golang.org/x/net
+  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  subpackages:
+  - html
+  - html/atom
+- name: golang.org/x/sys
+  version: 2d6f6f883a06fc0d5f4b14a81e4c28705ea64c15
+  subpackages:
+  - unix
+testImports:
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
