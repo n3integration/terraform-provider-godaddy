@@ -11,7 +11,7 @@
   <dt>Terraform v0.9.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.3.0</dd>
   <dt>Terraform v0.10.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.4.0</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.4.1</dd>
 <dl>
 
 ## Installation
@@ -69,9 +69,13 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
 }
 ```
 
-## Additional Information
-When applying the changes to your environment, Terraform compares the state of GoDaddy with the latest tfstate. Any delta between the two environments will be applied.
-To see how Terraform will apply the changes, it is recommended to first execute a dry run using `terraform plan`. This will help to ensure that there are no surprises.
+### Additional Information
+If your zone contains existing data, please ensure that your Terraform resource configuration includes all existing records, otherwise they will be removed.
+
+This plugin also supports Terraform's [import](https://www.terraform.io/docs/import/usage.html) feature. This will at least allow you to determine the changes introduced
+through `terraform plan` and update the resource configuration accordingly to preserve existing data. The supplied resource `id` to the `terraform import` command should
+be the name of the domain that you would like to import. Although this is currently a manual workaround, this plugin will be updated when Terraform includes support for
+fully automated imports.
 
 ## License
 

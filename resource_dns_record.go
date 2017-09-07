@@ -105,6 +105,9 @@ func resourceDomainRecord() *schema.Resource {
 		Read:   resourceDomainRecordRead,
 		Update: resourceDomainRecordUpdate,
 		Delete: resourceDomainRecordRestore,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Required
@@ -117,6 +120,10 @@ func resourceDomainRecord() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"append": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"customer": &schema.Schema{
 				Type:     schema.TypeString,
@@ -160,6 +167,11 @@ func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*GoDaddyClient)
 	customer := d.Get("customer").(string)
 	domain := d.Get("domain").(string)
+
+	// Importer support
+	if domain == "" {
+		domain = d.Id()
+	}
 
 	log.Println("Fetching", domain, "records...")
 	records, err := client.GetDomainRecords(customer, domain)

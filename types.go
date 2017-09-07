@@ -32,6 +32,9 @@ const (
 
 const (
 	DefaultTTL = 3600
+
+	StatusActive    = "ACTIVE"
+	StatusCancelled = "CANCELLED"
 )
 
 var supportedTypes = []string{

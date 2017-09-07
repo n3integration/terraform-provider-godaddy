@@ -81,6 +81,23 @@ func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
 	}, nil
 }
 
+// GetDomains fetches the details for the provided domain
+func (c *GoDaddyClient) GetDomains(customerID string) ([]Domain, error) {
+	url := fmt.Sprintf(pathDomains, c.baseURL, "")
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	d := []Domain{}
+	if err := c.execute(customerID, req, &d); err != nil {
+		return nil, err
+	}
+
+	return d, nil
+}
+
 // GetDomain fetches the details for the provided domain
 func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
 	url := fmt.Sprintf(pathDomains, c.baseURL, domain)
@@ -123,7 +140,9 @@ func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records [
 	}
 
 	url := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
-	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(msg))
+	method := http.MethodPut
+
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(msg))
 	if err != nil {
 		return err
 	}
