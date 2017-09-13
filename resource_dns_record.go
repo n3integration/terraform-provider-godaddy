@@ -121,10 +121,6 @@ func resourceDomainRecord() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"append": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
 			"customer": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,

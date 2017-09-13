@@ -68,8 +68,14 @@ func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
 	if err := ValidateData(data); err != nil {
 		return nil, err
 	}
-	if len(name) < 1 || len(name) > 255 {
-		return nil, fmt.Errorf("name must be between 1..255")
+	parts := strings.Split(name, ".")
+	if len(parts) < 1 || len(parts) > 255 {
+		return nil, fmt.Errorf("name must be between 1..255 octets")
+	}
+	for _, part := range parts {
+		if len(part) > 63 {
+			return nil, fmt.Errorf("invalid domain name. name octets should be less than 63 characters")
+		}
 	}
 	if ttl < 0 {
 		return nil, fmt.Errorf("ttl must be a positive value")

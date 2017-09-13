@@ -14,7 +14,9 @@ import (
 )
 
 const (
+	headerAccept        = "Accept"
 	headerAuthorization = "Authorization"
+	headerContent       = "Content-Type"
 	headerCustomerID    = "X-Shopper-Id"
 	mediaTypeJSON       = "application/json"
 	pathDomainRecords   = "%s/v1/domains/%s/records"
@@ -155,8 +157,8 @@ func (c *GoDaddyClient) execute(customerID string, req *http.Request, result int
 		req.Header.Set(headerCustomerID, customerID)
 	}
 
-	req.Header.Set("Accept", mediaTypeJSON)
-	req.Header.Set("Content-Type", mediaTypeJSON)
+	req.Header.Set(headerAccept, mediaTypeJSON)
+	req.Header.Set(headerContent, mediaTypeJSON)
 	req.Header.Set(headerAuthorization, fmt.Sprintf("sso-key %s:%s", c.key, c.secret))
 
 	resp, err := c.client.Do(req)
