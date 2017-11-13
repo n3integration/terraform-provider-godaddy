@@ -24,13 +24,13 @@ bash <(curl -s https://raw.githubusercontent.com/n3integration/terraform-godaddy
 In order to leverage the GoDaddy APIs, an [API key](https://developer.godaddy.com/keys/) is required. The key pair can be optionally stored in environment variables.
 
 ```bash
-export GD_KEY=abc
-export GD_SECRET=123
+export GODADDY_API_KEY=abc
+export GODADDY_API_SECRET=123
 ```
 
 ## Provider
 
-If `key` and `secret` aren't provided under the `godaddy` `provider`, they are expected to be exposed as environment variables: `GD_KEY` and `GD_SECRET`.
+If `key` and `secret` aren't provided under the `godaddy` `provider`, they are expected to be exposed as environment variables: `GODADDY_API_KEY` and `GODADDY_API_SECRET`.
 
 ```terraform
 provider "godaddy" {
