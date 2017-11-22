@@ -30,9 +30,9 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	verifyEnvExists(t, "GD_KEY")
-	verifyEnvExists(t, "GD_SECRET")
-	verifyEnvExists(t, "GD_DOMAIN")
+	verifyEnvExists(t, "GODADDY_API_KEY")
+	verifyEnvExists(t, "GODADDY_API_SECRET")
+	verifyEnvExists(t, "GODADDY_DOMAIN")
 }
 
 func verifyEnvExists(t *testing.T, key string) {
