@@ -4,14 +4,16 @@
 [ ![Codeship Status for n3integration/terraform-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
 
 <dl>
-  <dt>Terraform v0.7.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
-  <dt>Terraform v0.8.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.3</dd>
-  <dt>Terraform v0.9.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.3.0</dd>
+  <dt>Terraform v0.11.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.6.0</dd>
   <dt>Terraform v0.10.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.5.0</dd>
+  <dt>Terraform v0.9.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.3.0</dd>
+  <dt>Terraform v0.8.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.3</dd>
+  <dt>Terraform v0.7.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
 <dl>
 
 ## Installation
