@@ -205,7 +205,7 @@ func validate(resp *http.Response) error {
 		return err
 	}
 
-	return fmt.Errorf("[%d:%s] %s", resp.StatusCode, errResp.Code, errResp.Message)
+	return fmt.Errorf("[%d:%s] %s %s", resp.StatusCode, errResp.Code, errResp.Message, body)
 }
 
 func formatURL(baseURL string) (string, error) {
