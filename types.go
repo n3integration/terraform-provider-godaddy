@@ -103,8 +103,8 @@ func NewARecord(data string) (*DomainRecord, error) {
 
 // ValidateData performs bounds checking on a data element
 func ValidateData(data string) error {
-	if len(data) < 1 || len(data) > 255 {
-		return fmt.Errorf("data must be between 1..255 characters in length")
+	if len(data) < 0 || len(data) > 255 {
+		return fmt.Errorf("data must be between 0..255 characters in length")
 	}
 	return nil
 }

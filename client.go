@@ -199,13 +199,32 @@ func validate(resp *http.Response) error {
 	var errResp = struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
+		Fields []struct {
+			Code string 				`json:"code"`
+			Message string 			`json:"message"`
+			Path string 				`json:"path"`
+			PathRelated string 	`json:"pathRelated"`
+		} `json:"fields"`
 	}{}
 
 	if err := json.Unmarshal(body, &errResp); err != nil {
 		return err
 	}
 
-	return fmt.Errorf("[%d:%s] %s", resp.StatusCode, errResp.Code, errResp.Message)
+	if len(errResp.Fields) == 0 {
+		return fmt.Errorf("[%d:%s] %s", resp.StatusCode, errResp.Code, errResp.Message)
+	}
+
+	var b bytes.Buffer
+	b.WriteString(fmt.Sprintf("[%d:%s] %s (", resp.StatusCode, errResp.Code, errResp.Message))
+	for i, field := range errResp.Fields {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(fmt.Sprintf("%s [%s]: %s", field.Path, field.Code, field.Message))
+	}
+	b.WriteString(")")
+	return fmt.Errorf("%s", b.String())
 }
 
 func formatURL(baseURL string) (string, error) {
