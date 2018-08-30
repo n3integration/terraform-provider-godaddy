@@ -32,6 +32,7 @@ const (
 
 const (
 	DefaultTTL = 3600
+	DefaultPriority = 0
 
 	StatusActive    = "ACTIVE"
 	StatusCancelled = "CANCELLED"
@@ -62,7 +63,7 @@ type DomainRecord struct {
 }
 
 // NewDomainRecord validates and constructs a DomainRecord, if valid.
-func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
+func NewDomainRecord(name, t, data string, ttl int, priority int) (*DomainRecord, error) {
 	name = strings.TrimSpace(name)
 	data = strings.TrimSpace(data)
 	if err := ValidateData(data); err != nil {
@@ -80,6 +81,9 @@ func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
 	if ttl < 0 {
 		return nil, fmt.Errorf("ttl must be a positive value")
 	}
+	if err := ValidatePriority(priority); err != nil {
+		return nil, err
+	}
 	if !isSupportedType(t) {
 		return nil, fmt.Errorf("type must be one of: %s", supportedTypes)
 	}
@@ -88,23 +92,32 @@ func NewDomainRecord(name, t, data string, ttl int) (*DomainRecord, error) {
 		Type: t,
 		Data: data,
 		TTL:  ttl,
+		Priority: priority,
 	}, nil
 }
 
 // NewNSRecord constructs a nameserver record from the supplied data
 func NewNSRecord(data string) (*DomainRecord, error) {
-	return NewDomainRecord("@", "NS", data, DefaultTTL)
+	return NewDomainRecord("@", "NS", data, DefaultTTL, DefaultPriority)
 }
 
 // NewARecord constructs a new address record from the supplied data
 func NewARecord(data string) (*DomainRecord, error) {
-	return NewDomainRecord("@", "A", data, DefaultTTL)
+	return NewDomainRecord("@", "A", data, DefaultTTL, DefaultPriority)
 }
 
 // ValidateData performs bounds checking on a data element
 func ValidateData(data string) error {
 	if len(data) < 0 || len(data) > 255 {
 		return fmt.Errorf("data must be between 0..255 characters in length")
+	}
+	return nil
+}
+
+// ValidatePriority performs bounds checking on priority element
+func ValidatePriority(priority int) error {
+	if priority < 0 || priority > 65535 {
+		return fmt.Errorf("priority must be between 0..65535 (16 bit)")
 	}
 	return nil
 }
