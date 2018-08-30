@@ -54,7 +54,8 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 				data["name"].(string),
 				data["type"].(string),
 				data["data"].(string),
-				data["ttl"].(int))
+				data["ttl"].(int),
+				data["priority"].(int))
 
 			if err != nil {
 				return r, err
@@ -151,6 +152,11 @@ func resourceDomainRecord() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  DefaultTTL,
+						},
+						"priority": &schema.Schema{
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  DefaultPriority,
 						},
 					},
 				},
@@ -254,6 +260,7 @@ func flattenRecords(list []*DomainRecord) []map[string]interface{} {
 			"type": r.Type,
 			"data": r.Data,
 			"ttl":  r.TTL,
+			"priority": r.Priority,
 		}
 		result = append(result, l)
 	}
