@@ -42,9 +42,9 @@ provider "godaddy" {
 ```
 
 ## Domain Record Resource
-A `godaddy_domain_record` resource requires a `domain`. If the domain is not registered under the account that owns the key, an optional `customer` number can be specified. 
-Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. Address and NameServer records can be 
-defined using shorthand-notation as `addresses = [""]` or `nameservers = [""]`, respectively unless you need to override the default time-to-live (3600). The available record 
+A `godaddy_domain_record` resource requires a `domain`. If the domain is not registered under the account that owns the key, an optional `customer` number can be specified.
+Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. Address and NameServer records can be
+defined using shorthand-notation as `addresses = [""]` or `nameservers = [""]`, respectively unless you need to override the default time-to-live (3600). The available record
 types include:
 
 * A
@@ -78,6 +78,12 @@ This plugin also supports Terraform's [import](https://www.terraform.io/docs/imp
 through `terraform plan` and update the resource configuration accordingly to preserve existing data. The supplied resource `id` to the `terraform import` command should
 be the name of the domain that you would like to import. Although this is currently a manual workaround, this plugin will be updated when Terraform includes support for
 fully automated imports.
+
+## Building the binary with Docker Compose
+
+A [Makefile](Makefile) has been provided to make it easier to develop on this repository.
+
+Run `make build` in order to mount the code into a [golang](https://hub.docker.com/_/golang/) container that's been extended to include [glide](https://github.com/Masterminds/glide). This will output a `terraform-godaddy` binary built for Linux in the root of the project directory.
 
 ## License
 
