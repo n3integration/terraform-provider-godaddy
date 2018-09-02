@@ -42,14 +42,15 @@ provider "godaddy" {
 ```
 
 ## Domain Record Resource
-A `godaddy_domain_record` resource requires a `domain`. If the domain is not registered under the account that owns the key, an optional `customer` number can be specified. 
-Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. Address and NameServer records can be 
-defined using shorthand-notation as `addresses = [""]` or `nameservers = [""]`, respectively unless you need to override the default time-to-live (3600). The available record 
+A `godaddy_domain_record` resource requires a `domain`. If the domain is not registered under the account that owns the key, an optional `customer` number can be specified.
+Additionally, one or more `record` instances are required. For each `record`, the `name`, `type`, and `data` attributes are required. `MX` records can optionally specify `priority` or will default to `0`. Address and NameServer records can be
+defined using shorthand-notation as `addresses = [""]` or `nameservers = [""]`, respectively unless you need to override the default time-to-live (3600). The available record
 types include:
 
 * A
 * AAAA
 * CNAME
+* MX
 * NS
 * SOA
 * TXT
@@ -64,6 +65,14 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
     type = "CNAME"
     data = "fancy.github.io"
     ttl = 3600
+  }
+
+  record {
+    name = "@"
+    type = "MX"
+    data = "aspmx.l.google.com."
+    ttl = 600
+    priority = 1
   }
 
   addresses   = ["192.168.1.2", "192.168.1.3"]
