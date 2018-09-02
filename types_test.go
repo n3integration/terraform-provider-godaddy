@@ -17,7 +17,7 @@ func TestNewDomainRecord(t *testing.T) {
 	}
 	for _, test := range criteria {
 		t.Run(test.Name, func(t *testing.T) {
-			if _, err := NewDomainRecord(test.Domain, "A", "127.0.0.1", 60); err != nil {
+			if _, err := NewDomainRecord(test.Domain, "A", "127.0.0.1", 60, 0); err != nil {
 				if !test.Negative {
 					t.Errorf("failed to create new domain record: %s", err)
 				}
