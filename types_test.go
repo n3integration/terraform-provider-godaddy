@@ -2,7 +2,7 @@ package main
 
 import (
 	"testing"
-    "math/rand"
+        "math/rand"
 )
 
 
