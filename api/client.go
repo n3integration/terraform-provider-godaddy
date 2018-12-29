@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"bytes"
@@ -24,8 +24,8 @@ const (
 	rateLimit           = 1 * time.Second
 )
 
-// GoDaddyClient is a GoDaddy API client
-type GoDaddyClient struct {
+// Client is a GoDaddy API client
+type Client struct {
 	baseURL string
 	key     string
 	secret  string
@@ -56,7 +56,7 @@ func (t *rateLimitedTransport) RoundTrip(req *http.Request) (*http.Response, err
 
 // NewClient constructs a new GoDaddy API client or an error if the supplied
 // input is invalid.
-func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
+func NewClient(baseURL, key, secret string) (*Client, error) {
 	baseURL, err := formatURL(baseURL)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
 		TLSHandshakeTimeout: 10 * time.Second,
 	}
 
-	return &GoDaddyClient{
+	return &Client{
 		baseURL: baseURL,
 		key:     strings.TrimSpace(key),
 		secret:  strings.TrimSpace(secret),
@@ -84,15 +84,15 @@ func NewClient(baseURL, key, secret string) (*GoDaddyClient, error) {
 }
 
 // GetDomains fetches the details for the provided domain
-func (c *GoDaddyClient) GetDomains(customerID string) ([]Domain, error) {
-	url := fmt.Sprintf(pathDomains, c.baseURL, "")
+func (c *Client) GetDomains(customerID string) ([]Domain, error) {
+	domainURL := fmt.Sprintf(pathDomains, c.baseURL, "")
+	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	d := []Domain{}
+	var d []Domain
 	if err := c.execute(customerID, req, &d); err != nil {
 		return nil, err
 	}
@@ -101,10 +101,10 @@ func (c *GoDaddyClient) GetDomains(customerID string) ([]Domain, error) {
 }
 
 // GetDomain fetches the details for the provided domain
-func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
-	url := fmt.Sprintf(pathDomains, c.baseURL, domain)
+func (c *Client) GetDomain(customerID, domain string) (*Domain, error) {
+	domainURL := fmt.Sprintf(pathDomains, c.baseURL, domain)
+	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +118,10 @@ func (c *GoDaddyClient) GetDomain(customerID, domain string) (*Domain, error) {
 }
 
 // GetDomainRecords fetches all of the existing records for the provided domain
-func (c *GoDaddyClient) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
-	url := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
+func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
+	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
+	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -135,16 +135,16 @@ func (c *GoDaddyClient) GetDomainRecords(customerID, domain string) ([]*DomainRe
 }
 
 // UpdateDomainRecords replaces all of the existing records for the provided domain
-func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
+func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
 	msg, err := json.Marshal(records)
 	if err != nil {
 		return err
 	}
 
-	url := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
+	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
 	method := http.MethodPut
 
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(msg))
+	req, err := http.NewRequest(method, domainURL, bytes.NewBuffer(msg))
 	if err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func (c *GoDaddyClient) UpdateDomainRecords(customerID, domain string, records [
 	return c.execute(customerID, req, nil)
 }
 
-func (c *GoDaddyClient) execute(customerID string, req *http.Request, result interface{}) error {
+func (c *Client) execute(customerID string, req *http.Request, result interface{}) error {
 	if len(strings.TrimSpace(customerID)) > 0 {
 		req.Header.Set(headerCustomerID, customerID)
 	}
@@ -199,11 +199,11 @@ func validate(resp *http.Response) error {
 	var errResp = struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
-		Fields []struct {
-			Code string 				`json:"code"`
-			Message string 			`json:"message"`
-			Path string 				`json:"path"`
-			PathRelated string 	`json:"pathRelated"`
+		Fields  []struct {
+			Code        string `json:"code"`
+			Message     string `json:"message"`
+			Path        string `json:"path"`
+			PathRelated string `json:"pathRelated"`
 		} `json:"fields"`
 	}{}
 
@@ -227,15 +227,15 @@ func validate(resp *http.Response) error {
 	return fmt.Errorf("%s", b.String())
 }
 
-func formatURL(baseURL string) (string, error) {
-	url, err := url.Parse(baseURL)
+func formatURL(base string) (string, error) {
+	baseURL, err := url.Parse(base)
 	if err != nil {
 		return "", err
 	}
 
-	if url.Host == "" || url.Scheme == "" {
+	if baseURL.Host == "" || baseURL.Scheme == "" {
 		return "", fmt.Errorf("invalid baseUrl. expected format: scheme://host")
 	}
 
-	return fmt.Sprintf("%s://%s", url.Scheme, url.Host), err
+	return fmt.Sprintf("%s://%s", baseURL.Scheme, baseURL.Host), err
 }

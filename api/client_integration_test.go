@@ -1,6 +1,6 @@
 // +build integration
 
-package main
+package api
 
 import (
 	"fmt"
@@ -53,7 +53,7 @@ func TestGetTooManyRecords(t *testing.T) {
 	}
 }
 
-func getRecords(t *testing.T, client *GoDaddyClient, domain string) ([]*DomainRecord, error) {
+func getRecords(t *testing.T, client *Client, domain string) ([]*DomainRecord, error) {
 	records, err := client.GetDomainRecords("", domain)
 	assert.Nil(t, err)
 	assert.NotNil(t, records)

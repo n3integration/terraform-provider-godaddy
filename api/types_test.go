@@ -1,6 +1,7 @@
-package main
+package api
 
 import (
+	"math/rand"
 	"testing"
 )
 
@@ -13,7 +14,7 @@ func TestNewDomainRecord(t *testing.T) {
 		{"Given a valid domain", "godaddy.com", false},
 		{"Given a domain without a TLD", "localhost", false},
 		{"Given an empty domain", "", true},
-		{"Given a long name", "Lopado­temacho­selacho­galeo­kranio­leipsano­drim­hypo­trimmato­silphio­parao­melito­katakechy­meno­kichl­epi­kossypho­phatto­perister­alektryon­opte­kephallio­kigklo­peleio­lagoio­siraio­baphe­tragano­pterygon", true},
+		{"Given a long name", randBinaryString(513), true},
 	}
 	for _, test := range criteria {
 		t.Run(test.Name, func(t *testing.T) {
@@ -24,4 +25,13 @@ func TestNewDomainRecord(t *testing.T) {
 			}
 		})
 	}
+}
+
+func randBinaryString(n int) string {
+	var binRunes = []rune("01")
+	out := make([]rune, n)
+	for i := range out {
+		out[i] = binRunes[rand.Intn(len(binRunes))]
+	}
+	return string(out)
 }
