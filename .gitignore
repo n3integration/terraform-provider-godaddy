@@ -2,7 +2,7 @@
 *.o
 *.a
 *.so
-terraform-godaddy
+/terraform-godaddy
 
 # Folders
 _obj
