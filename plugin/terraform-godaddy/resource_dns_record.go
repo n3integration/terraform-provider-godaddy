@@ -4,59 +4,70 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/n3integration/terraform-godaddy/api"
 )
 
+const (
+	attrCustomer    = "customer"
+	attrDomain      = "domain"
+	attrRecord      = "record"
+	attrAddresses   = "addresses"
+	attrNameservers = "nameservers"
+
+	recName     = "name"
+	recType     = "type"
+	recData     = "data"
+	recTTL      = "ttl"
+	recPriority = "priority"
+)
+
 type domainRecordResource struct {
-	Customer  string
-	Domain    string
-	Records   []*api.DomainRecord
-	ARecords  []string
-	NSRecords []string
+	Customer         string
+	Domain           string
+	Records          []*api.DomainRecord
+	ARecords         []string
+	NSRecords        []string
+	ReplaceNSRecords bool
 }
 
 var defaultRecords = []*api.DomainRecord{
-	// A Records
-	{Type: api.AType, Name: "@", Data: "50.63.202.43", TTL: 600},
 	// CNAME Records
-	{Type: api.CNameType, Name: "email", Data: "email.secureserver.net", TTL: api.DefaultTTL},
-	{Type: api.CNameType, Name: "ftp", Data: "@", TTL: api.DefaultTTL},
 	{Type: api.CNameType, Name: "www", Data: "@", TTL: api.DefaultTTL},
-	{Type: api.CNameType, Name: "_domainconnect", Data: "_domainconnect.api.domaincontrol.com", TTL: api.DefaultTTL},
-	// MX Records
-	{Type: api.MXType, Name: "@", Data: "mailstore1.secureserver.net", TTL: api.DefaultTTL, Priority: 10},
-	{Type: api.MXType, Name: "@", Data: "smtp.secureserver.net", TTL: api.DefaultTTL, Priority: 0},
-	// NS Records
-	{Type: api.NSType, Name: "@", Data: "ns45.domaincontrol.com", TTL: api.DefaultTTL},
-	{Type: api.NSType, Name: "@", Data: "ns46.domaincontrol.com", TTL: api.DefaultTTL},
+	{Type: api.CNameType, Name: "_domainconnect", Data: "_domainconnect.gd.domaincontrol.com", TTL: api.DefaultTTL},
 }
 
-func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, error) {
+func newDomainRecordResource(d *schema.ResourceData) (*domainRecordResource, error) {
 	var err error
-	r := domainRecordResource{}
+	r := &domainRecordResource{}
+	nsCount := 0
 
-	if attr, ok := d.GetOk("customer"); ok {
+	if attr, ok := d.GetOk(attrCustomer); ok {
 		r.Customer = attr.(string)
 	}
 
-	if attr, ok := d.GetOk("domain"); ok {
+	if attr, ok := d.GetOk(attrDomain); ok {
 		r.Domain = attr.(string)
 	}
 
-	if attr, ok := d.GetOk("record"); ok {
+	if attr, ok := d.GetOk(attrRecord); ok {
 		records := attr.(*schema.Set).List()
 		r.Records = make([]*api.DomainRecord, len(records))
 
 		for i, rec := range records {
 			data := rec.(map[string]interface{})
+			t := data[recType].(string)
+			if strings.EqualFold(t, api.NSType) {
+				nsCount++
+			}
 			r.Records[i], err = api.NewDomainRecord(
-				data["name"].(string),
-				data["type"].(string),
-				data["data"].(string),
-				data["ttl"].(int),
-				data["priority"].(int))
+				data[recName].(string),
+				t,
+				data[recData].(string),
+				data[recTTL].(int),
+				data[recPriority].(int))
 
 			if err != nil {
 				return r, err
@@ -64,8 +75,9 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 		}
 	}
 
-	if attr, ok := d.GetOk("nameservers"); ok {
+	if attr, ok := d.GetOk(attrNameservers); ok {
 		records := attr.([]interface{})
+		nsCount += len(records)
 		r.NSRecords = make([]string, len(records))
 		for i, rec := range records {
 			if err = api.ValidateData(api.NSType, rec.(string)); err != nil {
@@ -75,7 +87,7 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 		}
 	}
 
-	if attr, ok := d.GetOk("addresses"); ok {
+	if attr, ok := d.GetOk(attrAddresses); ok {
 		records := attr.([]interface{})
 		r.ARecords = make([]string, len(records))
 		for i, rec := range records {
@@ -84,6 +96,10 @@ func newDomainRecordResource(d *schema.ResourceData) (domainRecordResource, erro
 			}
 			r.ARecords[i] = rec.(string)
 		}
+	}
+
+	if nsCount > 0 {
+		r.ReplaceNSRecords = true
 	}
 
 	return r, err
@@ -113,48 +129,48 @@ func resourceDomainRecord() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Required
-			"domain": {
+			attrDomain: {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			// Optional
-			"addresses": {
+			attrAddresses: {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"customer": {
+			attrCustomer: {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"nameservers": {
+			attrNameservers: {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"record": {
+			attrRecord: {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": {
+						recName: {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"type": {
+						recType: {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"data": {
+						recData: {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"ttl": {
+						recTTL: {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  api.DefaultTTL,
 						},
-						"priority": {
+						recPriority: {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  api.DefaultPriority,
@@ -168,8 +184,12 @@ func resourceDomainRecord() *schema.Resource {
 
 func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
-	customer := d.Get("customer").(string)
-	domain := d.Get("domain").(string)
+	customer := d.Get(attrCustomer).(string)
+	domain := d.Get(attrDomain).(string)
+	r, err := newDomainRecordResource(d)
+	if err != nil {
+		return err
+	}
 
 	// Importer support
 	if domain == "" {
@@ -182,7 +202,8 @@ func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("couldn't find domain record (%s): %s", domain, err.Error())
 	}
 
-	return populateResourceDataFromResponse(records, d)
+	r.converge()
+	return populateResourceDataFromResponse(records, r, d)
 }
 
 func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -192,7 +213,7 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	if err = populateDomainInfo(client, &r, d); err != nil {
+	if err = populateDomainInfo(client, r, d); err != nil {
 		return err
 	}
 
@@ -208,7 +229,7 @@ func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	if err = populateDomainInfo(client, &r, d); err != nil {
+	if err = populateDomainInfo(client, r, d); err != nil {
 		return err
 	}
 
@@ -230,12 +251,12 @@ func populateDomainInfo(client *api.Client, r *domainRecordResource, d *schema.R
 	return nil
 }
 
-func populateResourceDataFromResponse(r []*api.DomainRecord, d *schema.ResourceData) error {
+func populateResourceDataFromResponse(recs []*api.DomainRecord, r *domainRecordResource, d *schema.ResourceData) error {
 	aRecords := make([]string, 0)
 	nsRecords := make([]string, 0)
 	records := make([]*api.DomainRecord, 0)
 
-	for _, rec := range r {
+	for _, rec := range recs {
 		switch {
 		case api.IsDefaultNSRecord(rec):
 			nsRecords = append(nsRecords, rec.Data)
@@ -246,24 +267,33 @@ func populateResourceDataFromResponse(r []*api.DomainRecord, d *schema.ResourceD
 		}
 	}
 
-	d.Set("addresses", aRecords)
-	d.Set("nameservers", nsRecords)
-	d.Set("record", flattenRecords(records))
+	if err := d.Set(attrAddresses, aRecords); err != nil {
+		return err
+	}
+
+	if r.ReplaceNSRecords {
+		if err := d.Set(attrNameservers, nsRecords); err != nil {
+			return err
+		}
+	}
+
+	if err := d.Set(attrRecord, flattenRecords(records)); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func flattenRecords(list []*api.DomainRecord) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(list))
-	for _, r := range list {
-		l := map[string]interface{}{
-			"name":     r.Name,
-			"type":     r.Type,
-			"data":     r.Data,
-			"ttl":      r.TTL,
-			"priority": r.Priority,
+	result := make([]map[string]interface{}, len(list))
+	for i, r := range list {
+		result[i] = map[string]interface{}{
+			recName:     r.Name,
+			recType:     r.Type,
+			recData:     r.Data,
+			recTTL:      r.TTL,
+			recPriority: r.Priority,
 		}
-		result = append(result, l)
 	}
 	return result
 }

@@ -5,7 +5,7 @@
 
 <dl>
   <dt>Terraform v0.11.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.6.3</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.6.4</dd>
   <dt>Terraform v0.10.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.5.0</dd>
   <dt>Terraform v0.9.x</dt>
@@ -58,8 +58,13 @@ types include:
 ```terraform
 resource "godaddy_domain_record" "gd-fancy-domain" {
   domain   = "fancy-domain.com"
-  customer = "1234"                         // required if provider key does not belong to customer
 
+  // required if provider key does not belong to customer
+  customer = "1234"
+
+  // specify zero or more record blocks
+  // a record block allows you to configure A, or NS records with a custom time-to-live value
+  // a record block also allow you to configure AAAA, CNAME, TXT, or MX records
   record {
     name = "www"
     type = "CNAME"
@@ -75,7 +80,11 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
     priority = 1
   }
 
+  // specify any A records associated with the domain
   addresses   = ["192.168.1.2", "192.168.1.3"]
+
+  // specify any custom nameservers for your domain
+  // note: godaddy now requires that the 'custom' nameservers are first supplied through the ui
   nameservers = ["ns7.domains.com", "ns6.domains.com"]
 }
 ```
@@ -90,7 +99,7 @@ fully automated imports.
 
 ## License
 
-Copyright 2017 n3integration@gmail.com
+Copyright 2019 n3integration@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -19,8 +21,6 @@ const (
 	headerContent       = "Content-Type"
 	headerCustomerID    = "X-Shopper-Id"
 	mediaTypeJSON       = "application/json"
-	pathDomainRecords   = "%s/v1/domains/%s/records"
-	pathDomains         = "%s/v1/domains/%s"
 	rateLimit           = 1 * time.Second
 )
 
@@ -83,75 +83,6 @@ func NewClient(baseURL, key, secret string) (*Client, error) {
 	}, nil
 }
 
-// GetDomains fetches the details for the provided domain
-func (c *Client) GetDomains(customerID string) ([]Domain, error) {
-	domainURL := fmt.Sprintf(pathDomains, c.baseURL, "")
-	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var d []Domain
-	if err := c.execute(customerID, req, &d); err != nil {
-		return nil, err
-	}
-
-	return d, nil
-}
-
-// GetDomain fetches the details for the provided domain
-func (c *Client) GetDomain(customerID, domain string) (*Domain, error) {
-	domainURL := fmt.Sprintf(pathDomains, c.baseURL, domain)
-	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	d := new(Domain)
-	if err := c.execute(customerID, req, &d); err != nil {
-		return nil, err
-	}
-
-	return d, nil
-}
-
-// GetDomainRecords fetches all of the existing records for the provided domain
-func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
-	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
-	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	records := make([]*DomainRecord, 0)
-	if err := c.execute(customerID, req, &records); err != nil {
-		return nil, err
-	}
-
-	return records, nil
-}
-
-// UpdateDomainRecords replaces all of the existing records for the provided domain
-func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
-	msg, err := json.Marshal(records)
-	if err != nil {
-		return err
-	}
-
-	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
-	method := http.MethodPut
-
-	req, err := http.NewRequest(method, domainURL, bytes.NewBuffer(msg))
-	if err != nil {
-		return err
-	}
-
-	return c.execute(customerID, req, nil)
-}
-
 func (c *Client) execute(customerID string, req *http.Request, result interface{}) error {
 	if len(strings.TrimSpace(customerID)) > 0 {
 		req.Header.Set(headerCustomerID, customerID)
@@ -172,7 +103,9 @@ func (c *Client) execute(customerID string, req *http.Request, result interface{
 		return err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	buffer := new(bytes.Buffer)
+	body, err := ioutil.ReadAll(io.TeeReader(resp.Body, buffer))
+	log.Printf("%s %s", resp.Status, buffer)
 	if err != nil {
 		return err
 	}
@@ -191,7 +124,9 @@ func validate(resp *http.Response) error {
 		return nil
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	buffer := new(bytes.Buffer)
+	body, err := ioutil.ReadAll(io.TeeReader(resp.Body, buffer))
+	log.Println(buffer)
 	if err != nil {
 		return err
 	}

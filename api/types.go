@@ -139,7 +139,7 @@ func NewARecord(data string) (*DomainRecord, error) {
 
 // ValidateData performs bounds checking on a data element
 func ValidateData(t, data string) error {
-	switch (t) {
+	switch t {
 	case TXTType:
 		if len(data) < 0 || len(data) > 512 {
 			return fmt.Errorf("data must be between 0..512 characters in length")
@@ -168,6 +168,11 @@ func IsDefaultARecord(record *DomainRecord) bool {
 // IsDefaultNSRecord is a predicate to place fetched NS domain records into the appropriate bucket
 func IsDefaultNSRecord(record *DomainRecord) bool {
 	return record.Name == Ptr && record.Type == NSType && record.TTL == DefaultTTL
+}
+
+// IsDisallowed prevents empty NS|SOA record lists from being propagated, which is disallowed
+func IsDisallowed(t string, records []*DomainRecord) bool {
+	return len(records) == 0 && strings.EqualFold(t, NSType) || strings.EqualFold(t, SOAType)
 }
 
 func isSupportedType(recType string) bool {
