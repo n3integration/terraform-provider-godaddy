@@ -142,7 +142,7 @@ func ValidateData(t, data string) error {
 	switch t {
 	case TXTType:
 		if len(data) < 0 || len(data) > 512 {
-			return fmt.Errorf("data must be between 0..512 characters in length")
+			return fmt.Errorf("TXT data must be between 0..512 characters in length")
 		}
 	default:
 		if len(data) < 0 || len(data) > 255 {

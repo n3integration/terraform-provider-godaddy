@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/plugin"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 const (
@@ -10,8 +11,10 @@ const (
 )
 
 func main() {
-	opts := plugin.ServeOpts{
-		ProviderFunc: Provider,
+	opts := &plugin.ServeOpts{
+		ProviderFunc: func() terraform.ResourceProvider {
+			return Provider()
+		},
 	}
-	plugin.Serve(&opts)
+	plugin.Serve(opts)
 }

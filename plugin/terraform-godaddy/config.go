@@ -22,7 +22,7 @@ func (c *Config) Client() (*api.Client, error) {
 		return nil, fmt.Errorf("error setting up client: %s", err)
 	}
 
-	log.Print("[INFO] GoDaddy Client configured")
+	log.Print("GoDaddy Client configured")
 
 	return client, nil
 }
