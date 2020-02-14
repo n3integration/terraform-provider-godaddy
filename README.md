@@ -55,6 +55,7 @@ types include:
 * MX
 * NS
 * SOA
+* SRV
 * TXT
 
 ```terraform

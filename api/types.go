@@ -44,6 +44,8 @@ func (rt RecordType) String() string {
 		return NSType
 	case SOA:
 		return SOAType
+	case SRV:
+		return SRVType
 	case TXT:
 		return TXTType
 	}
@@ -64,11 +66,12 @@ const (
 	MXType    = "MX"
 	NSType    = "NS"
 	SOAType   = "SOA"
+	SRVType   = "SRV"
 	TXTType   = "TXT"
 )
 
 var supportedTypes = []string{
-	AType, AAAAType, CNameType, MXType, NSType, SOAType, TXTType,
+	AType, AAAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
 }
 
 // Domain encapsulates a domain resource
