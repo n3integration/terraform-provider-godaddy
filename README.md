@@ -24,6 +24,12 @@
 bash <(curl -s https://raw.githubusercontent.com/n3integration/terraform-godaddy/master/install.sh)
 ```
 
+### Installation steps for Terraform Cloud
+1. Download latest release for `linux_amd64` from https://github.com/n3integration/terraform-godaddy/releases
+2. Unpack to `<Project Folder>/terraform.d/plugins/linux_amd64`.
+3. Rename to match naming scheme: `terraform-provider-<NAME>_vX.Y.Z` https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
+4. Run `terraform init` to make sure the provider works.
+
 ## API Key
 In order to leverage the GoDaddy APIs, an [API key](https://developer.godaddy.com/keys/) is required. The key pair can be optionally stored in environment variables.
 
