@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -44,6 +45,8 @@ func (rt RecordType) String() string {
 		return NSType
 	case SOA:
 		return SOAType
+	case SRV:
+		return SRVType
 	case TXT:
 		return TXTType
 	}
@@ -53,6 +56,8 @@ func (rt RecordType) String() string {
 const (
 	DefaultTTL      = 3600
 	DefaultPriority = 0
+	DefaultWeight   = 0
+	DefaultPort     = 0
 
 	StatusActive    = "ACTIVE"
 	StatusCancelled = "CANCELLED"
@@ -64,11 +69,12 @@ const (
 	MXType    = "MX"
 	NSType    = "NS"
 	SOAType   = "SOA"
+	SRVType   = "SRV"
 	TXTType   = "TXT"
 )
 
 var supportedTypes = []string{
-	AType, AAAAType, CNameType, MXType, NSType, SOAType, TXTType,
+	AType, AAAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
 }
 
 // Domain encapsulates a domain resource
@@ -83,16 +89,19 @@ type DomainRecord struct {
 	Type     string `json:"type,omitempty"`
 	Name     string `json:"name"`
 	Data     string `json:"data"`
-	Priority int    `json:"priority,omitempty"`
+	Priority int    `json:"priority"`
 	TTL      int    `json:"ttl"`
-	// Service  string `json:"service"`
-	// Protocol string `json:"protocol"`
-	// Port     int    `json:"port"`
-	// Weight   int    `json:"weight"`
+	Service  string `json:"service,omitempty"`
+	Protocol string `json:"protocol,omitempty"`
+	Weight   int    `json:"weight"`
+	Port     *int   `json:"port,omitempty"`
 }
 
+// DomainRecordOpt provides support for setting optional parameters
+type DomainRecordOpt func(*DomainRecord) error
+
 // NewDomainRecord validates and constructs a DomainRecord, if valid.
-func NewDomainRecord(name, t, data string, ttl int, priority int) (*DomainRecord, error) {
+func NewDomainRecord(name, t, data string, ttl int, opts ...DomainRecordOpt) (*DomainRecord, error) {
 	name = strings.TrimSpace(name)
 	data = strings.TrimSpace(data)
 	if err := ValidateData(t, data); err != nil {
@@ -101,52 +110,109 @@ func NewDomainRecord(name, t, data string, ttl int, priority int) (*DomainRecord
 
 	parts := strings.Split(name, ".")
 	if len(parts) < 1 || len(parts) > 255 {
-		return nil, fmt.Errorf("name must be between 1..255 octets")
+		return nil, errors.New("name must be between 1..255 octets")
 	}
 	for _, part := range parts {
 		if len(part) > 63 {
-			return nil, fmt.Errorf("invalid domain name. name octets should be less than 63 characters")
+			return nil, errors.New("invalid domain name. name octets should be less than 63 characters")
 		}
 	}
 
 	if ttl < 0 {
-		return nil, fmt.Errorf("ttl must be a positive value")
-	}
-	if err := ValidatePriority(priority); err != nil {
-		return nil, err
+		return nil, errors.New("ttl must be a positive value")
 	}
 	if !isSupportedType(t) {
 		return nil, fmt.Errorf("type must be one of: %s", supportedTypes)
 	}
-	return &DomainRecord{
-		Name:     name,
-		Type:     t,
-		Data:     data,
-		TTL:      ttl,
-		Priority: priority,
-	}, nil
+	dr := &DomainRecord{
+		Name: name,
+		Type: t,
+		Data: data,
+		TTL:  ttl,
+	}
+	for _, opt := range opts {
+		if err := opt(dr); err != nil {
+			return nil, err
+		}
+	}
+	return dr, nil
+}
+
+func Priority(priority int) DomainRecordOpt {
+	return func(rec *DomainRecord) error {
+		if err := ValidatePriority(priority); err != nil {
+			return err
+		}
+		rec.Priority = priority
+		return nil
+	}
+}
+
+func Weight(weight int) DomainRecordOpt {
+	return func(rec *DomainRecord) error {
+		if err := ValidateWeight(weight); err != nil {
+			return err
+		}
+		rec.Weight = weight
+		return nil
+	}
+}
+
+func Port(port int) DomainRecordOpt {
+	return func(rec *DomainRecord) error {
+		if port == 0 {
+			return nil
+		}
+		if err := ValidatePort(port); err != nil {
+			return err
+		}
+		rec.Port = &port
+		return nil
+	}
+}
+
+func Service(service string) DomainRecordOpt {
+	return func(rec *DomainRecord) error {
+		if strings.TrimSpace(service) != "" && !strings.HasPrefix(service, "_") {
+			return errors.New("service must start with an underscore (e.g. _ldap)")
+		}
+		rec.Service = service
+		return nil
+	}
+}
+
+func Protocol(proto string) DomainRecordOpt {
+	return func(rec *DomainRecord) error {
+		if strings.TrimSpace(proto) != "" && !strings.HasPrefix(proto, "_") {
+			return errors.New("protocol must start with an underscore (e.g. _tcp)")
+		}
+		rec.Protocol = proto
+		return nil
+	}
 }
 
 // NewNSRecord constructs a nameserver record from the supplied data
 func NewNSRecord(data string) (*DomainRecord, error) {
-	return NewDomainRecord(Ptr, NSType, data, DefaultTTL, DefaultPriority)
+	return NewDomainRecord(Ptr, NSType, data, DefaultTTL)
 }
 
 // NewARecord constructs a new address record from the supplied data
 func NewARecord(data string) (*DomainRecord, error) {
-	return NewDomainRecord(Ptr, AType, data, DefaultTTL, DefaultPriority)
+	return NewDomainRecord(Ptr, AType, data, DefaultTTL)
 }
 
 // ValidateData performs bounds checking on a data element
 func ValidateData(t, data string) error {
 	switch t {
+	case SRVType:
+		return nil
 	case TXTType:
 		if len(data) < 0 || len(data) > 512 {
-			return fmt.Errorf("TXT data must be between 0..512 characters in length")
+			return errors.New("TXT data must be between 0..512 characters in length")
 		}
 	default:
 		if len(data) < 0 || len(data) > 255 {
-			return fmt.Errorf("data must be between 0..255 characters in length")
+			return errors.New("data must be between 0..255 characters in length")
 		}
 	}
 	return nil
@@ -155,7 +221,21 @@ func ValidateData(t, data string) error {
 // ValidatePriority performs bounds checking on priority element
 func ValidatePriority(priority int) error {
 	if priority < 0 || priority > 65535 {
-		return fmt.Errorf("priority must be between 0..65535 (16 bit)")
+		return errors.New("priority must be between 0..65535 (16 bit)")
+	}
+	return nil
+}
+
+func ValidateWeight(weight int) error {
+	if weight < 0 || weight > 100 {
+		return errors.New("weight must be between 0..100")
+	}
+	return nil
+}
+
+func ValidatePort(port int) error {
+	if port < 1 || port > 65535 {
+		return errors.New("port must be between 1..65535")
 	}
 	return nil
 }

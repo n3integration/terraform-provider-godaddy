@@ -22,6 +22,10 @@ const (
 	recData     = "data"
 	recTTL      = "ttl"
 	recPriority = "priority"
+	recWeight   = "weight"
+	recProto    = "protocol"
+	recService  = "service"
+	recPort     = "port"
 )
 
 type domainRecordResource struct {
@@ -67,7 +71,11 @@ func newDomainRecordResource(d *schema.ResourceData) (*domainRecordResource, err
 				t,
 				data[recData].(string),
 				data[recTTL].(int),
-				data[recPriority].(int))
+				api.Priority(data[recPriority].(int)),
+				api.Weight(data[recWeight].(int)),
+				api.Port(data[recPort].(int)),
+				api.Service(data[recService].(string)),
+				api.Protocol(data[recProto].(string)))
 
 			if err != nil {
 				return r, err
@@ -174,6 +182,24 @@ func resourceDomainRecord() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  api.DefaultPriority,
+						},
+						recWeight: {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  api.DefaultWeight,
+						},
+						recService: {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						recProto: {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						recPort: {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  api.DefaultPort,
 						},
 					},
 				},
@@ -293,6 +319,10 @@ func flattenRecords(list []*api.DomainRecord) []map[string]interface{} {
 			recData:     r.Data,
 			recTTL:      r.TTL,
 			recPriority: r.Priority,
+			recWeight:   r.Weight,
+			recPort:     r.Port,
+			recService:  r.Service,
+			recProto:    r.Protocol,
 		}
 	}
 	return result
