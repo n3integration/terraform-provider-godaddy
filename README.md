@@ -5,7 +5,7 @@
 
 <dl>
   <dt>Terraform v0.12.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.0</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.1</dd>
   <dt>Terraform v0.11.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.6.4</dd>
   <dt>Terraform v0.10.x</dt>
@@ -61,6 +61,7 @@ types include:
 * MX
 * NS
 * SOA
+* SRV
 * TXT
 
 ```terraform
@@ -88,6 +89,16 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
     priority = 1
   }
 
+  record {
+    name      = "@"
+    type      = "SRV"
+    data      = "host.example.com"
+    ttl       = 3600
+    service   = "_ldap"
+    protocol  = "_tcp"
+    port      = 389
+  }
+
   // specify any A records associated with the domain
   addresses   = ["192.168.1.2", "192.168.1.3"]
 
@@ -107,7 +118,7 @@ fully automated imports.
 
 ## License
 
-Copyright 2019 n3integration@gmail.com
+Copyright 2020 n3integration@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
