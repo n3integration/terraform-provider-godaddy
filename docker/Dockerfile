@@ -1,4 +1,4 @@
-FROM golang:1.11.4-stretch
+FROM golang:1.13.8-stretch
 
 #COPY . /go/src/github.com/n3integration/terraform-godaddy
 WORKDIR /go/src/github.com/n3integration/terraform-godaddy

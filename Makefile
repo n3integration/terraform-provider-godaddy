@@ -13,4 +13,9 @@ local:
 	go build ./plugin/terraform-godaddy
 
 linux:
-	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" run builder
+	@echo "Pulling latest image"
+	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" pull
+	@echo "Compile and build"
+	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" run --rm builder
+	@echo "Cleaning up resources"
+	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" down
