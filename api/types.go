@@ -17,6 +17,8 @@ const (
 	A RecordType = iota
 	// AAAA is an IPv6 address record type
 	AAAA
+	// CAA is a Certificate Authority record type
+	CAA
 	// CNAME is a Canonical record name (alias) type
 	CNAME
 	// MX is a mail exchange record type
@@ -37,6 +39,8 @@ func (rt RecordType) String() string {
 		return AType
 	case AAAA:
 		return AAAAType
+	case CAA:
+		return CAAType
 	case CNAME:
 		return CNameType
 	case MX:
@@ -65,6 +69,7 @@ const (
 	Ptr       = "@"
 	AType     = "A"
 	AAAAType  = "AAAA"
+	CAAType   = "CAA"
 	CNameType = "CNAME"
 	MXType    = "MX"
 	NSType    = "NS"
@@ -74,7 +79,7 @@ const (
 )
 
 var supportedTypes = []string{
-	AType, AAAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
+	AType, AAAAType, CAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
 }
 
 // Domain encapsulates a domain resource

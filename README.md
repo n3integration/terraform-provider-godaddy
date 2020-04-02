@@ -5,7 +5,7 @@
 
 <dl>
   <dt>Terraform v0.12.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.1</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.2</dd>
   <dt>Terraform v0.11.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.6.4</dd>
   <dt>Terraform v0.10.x</dt>
@@ -57,6 +57,7 @@ types include:
 
 * A
 * AAAA
+* CAA
 * CNAME
 * MX
 * NS
@@ -106,6 +107,12 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
   // note: godaddy now requires that the 'custom' nameservers are first supplied through the ui
   nameservers = ["ns7.domains.com", "ns6.domains.com"]
 }
+```
+
+## Building for Linux
+
+```bash
+make linux
 ```
 
 ### Additional Information
