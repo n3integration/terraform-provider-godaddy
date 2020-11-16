@@ -1,8 +1,10 @@
-module github.com/n3integration/terraform-godaddy
+module terraform-provider-godaddy
+
+go 1.15
 
 require (
-	github.com/hashicorp/terraform v0.12.21
-	github.com/stretchr/testify v1.3.0
+	github.com/hashicorp/terraform v0.13.5
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.2.0
+	github.com/n3integration/terraform-godaddy v1.7.3 // indirect
+	github.com/stretchr/testify v1.6.1
 )
-
-go 1.13
