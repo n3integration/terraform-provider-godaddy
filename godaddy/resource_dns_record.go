@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"terraform-provider-godaddy/api"
+	"github.com/kolikons/terraform-provider-godaddy/api"
 )
 
 const (

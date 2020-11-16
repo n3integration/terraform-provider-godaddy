@@ -6,7 +6,7 @@ import (
 
 
 
-	"terraform-provider-godaddy/godaddy"
+	"github.com/kolikons/terraform-provider-godaddy/godaddy"
 )
 
 const (
