@@ -11,11 +11,6 @@ export
 
 local:
 	go build ./plugin/terraform-godaddy
-
-linux:
-	@echo "Pulling latest image"
-	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" pull
-	@echo "Compile and build"
-	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" run --rm builder
-	@echo "Cleaning up resources"
-	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" down
+	rm ~/.terraform/plugins/terraform-godaddy
+	mv terraform-godaddy ~/.terraform/plugins/terraform-godaddy
+	chmod +x ~/.terraform/plugins/terraform-godaddy
