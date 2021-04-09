@@ -39,8 +39,6 @@ func (rt RecordType) String() string {
 		return AType
 	case AAAA:
 		return AAAAType
-	case CAA:
-		return CAAType
 	case CNAME:
 		return CNameType
 	case MX:
@@ -69,7 +67,6 @@ const (
 	Ptr       = "@"
 	AType     = "A"
 	AAAAType  = "AAAA"
-	CAAType   = "CAA"
 	CNameType = "CNAME"
 	MXType    = "MX"
 	NSType    = "NS"
@@ -79,7 +76,7 @@ const (
 )
 
 var supportedTypes = []string{
-	AType, AAAAType, CAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
+	AType, AAAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
 }
 
 // Domain encapsulates a domain resource
@@ -257,7 +254,7 @@ func IsDefaultNSRecord(record *DomainRecord) bool {
 
 // IsDisallowed prevents empty NS|SOA record lists from being propagated, which is disallowed
 func IsDisallowed(t string, records []*DomainRecord) bool {
-	return len(records) == 0 && strings.EqualFold(t, NSType) || strings.EqualFold(t, SOAType) || strings.EqualFold(t, CAAType)
+	return len(records) == 0 && strings.EqualFold(t, NSType) || strings.EqualFold(t, SOAType)
 }
 
 func isSupportedType(recType string) bool {
