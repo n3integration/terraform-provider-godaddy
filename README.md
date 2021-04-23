@@ -5,7 +5,7 @@
 
 <dl>
   <dt>Terraform v0.14.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.8.0</dd>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.8.1</dd>
   <dt>Terraform v0.12.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.3</dd>
   <dt>Terraform v0.11.x</dt>
