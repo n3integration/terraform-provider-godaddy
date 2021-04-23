@@ -4,6 +4,8 @@
 [ ![Codeship Status for n3integration/terraform-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
 
 <dl>
+  <dt>Terraform v0.14.x</dt>
+  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.8.0</dd>
   <dt>Terraform v0.12.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.3</dd>
   <dt>Terraform v0.11.x</dt>
@@ -17,12 +19,6 @@
   <dt>Terraform v0.7.x</dt>
   <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
 <dl>
-
-## Installation
-
-```bash
-bash <(curl -s https://raw.githubusercontent.com/n3integration/terraform-godaddy/master/install.sh)
-```
 
 ### Installation steps for Terraform Cloud
 1. Download latest release for `linux_amd64` from https://github.com/n3integration/terraform-godaddy/releases
@@ -125,7 +121,7 @@ fully automated imports.
 
 ## License
 
-Copyright 2020 n3integration@gmail.com
+Copyright 2021 n3integration@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
