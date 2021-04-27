@@ -1,3 +1,4 @@
+.PHONY: linux docs local
 # ==================== [START] Global Variable Declaration =================== #
 SHELL := /bin/bash
 # 'shell' removes newlines
@@ -23,6 +24,9 @@ linux:
 	@echo "Cleaning up resources"
 	@docker-compose -f "${BASE_DIR}/docker/docker-compose.yml" down
 	
+docs:
+	@go generate
+
 local:
 	go build -o $(BINARY) -ldflags='-s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT)' .
 	rm -rf ~/.terraform/plugins/terraform-godaddy

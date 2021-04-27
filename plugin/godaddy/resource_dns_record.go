@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/n3integration/terraform-godaddy/api"
+	"github.com/n3integration/terraform-provider-godaddy/api"
 )
 
 const (
