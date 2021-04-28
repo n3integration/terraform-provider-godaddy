@@ -10,9 +10,13 @@ import (
 )
 
 var (
-	pathDomainRecords       = "%s/v1/domains/%s/records"
+	pathDomainRecords       = "%s/v1/domains/%s/records?limit=%d&offset=%d"
 	pathDomainRecordsByType = "%s/v1/domains/%s/records/%s"
 	pathDomains             = "%s/v1/domains/%s"
+)
+
+const (
+	defaultLimit = 500
 )
 
 // GetDomains fetches the details for the provided domain
@@ -51,16 +55,25 @@ func (c *Client) GetDomain(customerID, domain string) (*Domain, error) {
 
 // GetDomainRecords fetches all of the existing records for the provided domain
 func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
-	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
-	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
+	offset := 1
 	records := make([]*DomainRecord, 0)
-	if err := c.execute(customerID, req, &records); err != nil {
-		return nil, err
+	for {
+		page := make([]*DomainRecord, 0)
+		domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain, defaultLimit, offset)
+		req, err := http.NewRequest(http.MethodGet, domainURL, nil)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if err := c.execute(customerID, req, &page); err != nil {
+			return nil, err
+		}
+		if len(page) == 0 {
+			break
+		}
+		offset += 1
+		records = append(records, page...)
 	}
 
 	return records, nil
