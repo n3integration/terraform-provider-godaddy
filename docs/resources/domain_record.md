@@ -19,6 +19,7 @@ subcategory: "infrastructure"
 - **id** (String) The ID of this resource.
 - **nameservers** (List of String)
 - **record** (Block Set) (see [below for nested schema](#nestedblock--record))
+- **overwrite** (Bool) To add new or replace all records
 
 <a id="nestedblock--record"></a>
 ### Nested Schema for `record`
