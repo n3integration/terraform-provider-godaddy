@@ -16,7 +16,7 @@ const (
 	attrRecord      = "record"
 	attrAddresses   = "addresses"
 	attrNameservers = "nameservers"
-	attrOverwrite= "overwrite"
+	attrOverwrite   = "overwrite"
 
 	recName     = "name"
 	recType     = "type"
@@ -111,8 +111,6 @@ func newDomainRecordResource(d *schema.ResourceData) (*domainRecordResource, err
 		r.ReplaceNSRecords = true
 	}
 
-
-
 	return r, err
 }
 
@@ -158,6 +156,10 @@ func resourceDomainRecord() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			attrOverwrite: {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			attrRecord: {
 				Type:     schema.TypeSet,
@@ -246,7 +248,7 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	overwrite := d.GetOk(attrOverwrite).(bool)
+	overwrite := d.Get(attrOverwrite).(bool)
 
 	log.Println("Updating", r.Domain, "domain records...")
 	r.converge()
@@ -264,7 +266,7 @@ func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	overwrite := d.GetOk(attrOverwrite).(bool)
+	overwrite := d.Get(attrOverwrite).(bool)
 
 	log.Println("Restoring", r.Domain, "domain records...")
 	return client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords, overwrite)

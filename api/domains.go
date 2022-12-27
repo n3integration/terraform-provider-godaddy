@@ -68,7 +68,7 @@ func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, e
 
 // DEPRECATED: UpdateDomainRecords replaces all of the existing records for the provided domain
 // UpdateDomainRecords adds records or replaces all of the existing records for the provided domain
-func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord, overwrite) error {
+func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord, overwrite bool) error {
 	for _, t := range supportedTypes {
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
@@ -85,13 +85,14 @@ func (c *Client) UpdateDomainRecords(customerID, domain string, records []*Domai
 		log.Println(domainURL)
 		log.Println(buffer)
 
+		// by defaukt set method to patch to only add records
+		method := http.MethodPatch
+
+		// set method to PUT if overwrite=true -> This will replace all existing records
 		if overwrite {
-			method := http.MethodPut
+			method = http.MethodPut
 		}
-		else {
-			method := http.MethodPatch
-		}
-		
+
 		req, err := http.NewRequest(method, domainURL, buffer)
 		// req, err := http.NewRequest(http.MethodPut, domainURL, buffer)
 		if err != nil {
