@@ -16,6 +16,7 @@ const (
 	attrRecord      = "record"
 	attrAddresses   = "addresses"
 	attrNameservers = "nameservers"
+	attrOverwrite   = "overwrite"
 
 	recName     = "name"
 	recType     = "type"
@@ -156,6 +157,10 @@ func resourceDomainRecord() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			attrOverwrite: {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			attrRecord: {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -243,9 +248,11 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
+	overwrite := d.Get(attrOverwrite).(bool)
+
 	log.Println("Updating", r.Domain, "domain records...")
 	r.converge()
-	return client.UpdateDomainRecords(r.Customer, r.Domain, r.Records)
+	return client.UpdateDomainRecords(r.Customer, r.Domain, r.Records, overwrite)
 }
 
 func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error {
@@ -259,8 +266,10 @@ func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	overwrite := d.Get(attrOverwrite).(bool)
+
 	log.Println("Restoring", r.Domain, "domain records...")
-	return client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords)
+	return client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords, overwrite)
 }
 
 func populateDomainInfo(client *api.Client, r *domainRecordResource, d *schema.ResourceData) error {
