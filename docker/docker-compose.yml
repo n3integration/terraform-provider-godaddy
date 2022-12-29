@@ -8,4 +8,4 @@ services:
       dockerfile: docker/Dockerfile
     restart: "no"
     volumes:
-    - ..:/go/src/github.com/n3integration/godaddy
+    - ..:/go/src/github.com/anna-kampani/godaddy
