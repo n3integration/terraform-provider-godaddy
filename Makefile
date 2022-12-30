@@ -4,13 +4,15 @@ SHELL := /bin/bash
 # 'shell' removes newlines
 BASE_DIR := $(shell pwd)
 
-BINARY := "terraform-provider-godaddy"
-
 COMMIT := $(shell git rev-parse --short HEAD)
 
 UNAME_S := $(shell uname -s)
 
 VERSION := $(shell grep "version=" install.sh | cut -d= -f2)
+
+MACHINE := $(shell uname -m)
+
+BINARY := "terraform-provider-godaddy_v$(VERSION)"
 
 # exports all variables
 export
@@ -30,8 +32,8 @@ docs:
 local:
 	go build -o $(BINARY) -ldflags='-s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT)' .
 	rm -rf ~/.terraform/plugins/terraform-godaddy
-	rm -rf ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/terraform-provider-godaddy
-	mkdir -p ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/
-	mv $(BINARY) ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/
-	chmod +x ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/$(BINARY)
+	rm -rf ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/darwin_$(MACHINE)
+	mkdir -p ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/darwin_$(MACHINE)/
+	mv $(BINARY) ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/darwin_$(MACHINE)/
+	chmod +x ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/darwin_$(MACHINE)/$(BINARY)
 

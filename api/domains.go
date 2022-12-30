@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var (
+const (
 	pathDomainRecords       = "%s/v1/domains/%s/records"
 	pathDomainRecordsByType = "%s/v1/domains/%s/records/%s"
 	pathDomains             = "%s/v1/domains/%s"
@@ -49,7 +49,7 @@ func (c *Client) GetDomain(customerID, domain string) (*Domain, error) {
 	return d, nil
 }
 
-// GetDomainRecords fetches all of the existing records for the provided domain
+// GetDomainRecords fetches all existing records for the provided domain
 func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
 	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
 	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
@@ -66,9 +66,15 @@ func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, e
 	return records, nil
 }
 
+<<<<<<< Updated upstream
 // UpdateDomainRecords replaces all of the existing records for the provided domain
 func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
 	for _, t := range supportedTypes {
+=======
+// UpdateDomainRecords adds records or replaces all existing records for the provided domain
+func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
+	for t := range supportedTypes {
+>>>>>>> Stashed changes
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
 			continue
@@ -79,8 +85,9 @@ func (c *Client) UpdateDomainRecords(customerID, domain string, records []*Domai
 			return err
 		}
 
-		buffer := bytes.NewBuffer(msg)
 		domainURL := fmt.Sprintf(pathDomainRecordsByType, c.baseURL, domain, t)
+		buffer := bytes.NewBuffer(msg)
+
 		log.Println(domainURL)
 		log.Println(buffer)
 

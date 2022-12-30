@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -104,7 +103,7 @@ func (c *Client) execute(customerID string, req *http.Request, result interface{
 	}
 
 	buffer := new(bytes.Buffer)
-	body, err := ioutil.ReadAll(io.TeeReader(resp.Body, buffer))
+	body, err := io.ReadAll(io.TeeReader(resp.Body, buffer))
 	log.Printf("%s %s", resp.Status, buffer)
 	if err != nil {
 		return err
@@ -125,7 +124,7 @@ func validate(resp *http.Response) error {
 	}
 
 	buffer := new(bytes.Buffer)
-	body, err := ioutil.ReadAll(io.TeeReader(resp.Body, buffer))
+	body, err := io.ReadAll(io.TeeReader(resp.Body, buffer))
 	log.Println(buffer)
 	if err != nil {
 		return err

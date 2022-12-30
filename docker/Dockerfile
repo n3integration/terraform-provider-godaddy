@@ -1,6 +1,6 @@
-FROM golang:1.13.8-stretch
+FROM golang:1.19-bullseye
 
-#COPY . /go/src/github.com/n3integration/godaddy
-WORKDIR /go/src/github.com/n3integration/terraform-godaddy
+#COPY .. /go/src/github.com/n3integration/terraform-provider-godaddy
+WORKDIR /go/src/github.com/n3integration/terraform-provider-godaddy
 
-CMD go build -v ./plugin/terraform-godaddy
+CMD go build -v
