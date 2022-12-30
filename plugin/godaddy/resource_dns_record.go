@@ -253,11 +253,6 @@ func resourceDomainRecordCreate(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-<<<<<<< Updated upstream
-	log.Println("Updating", r.Domain, "domain records...")
-	r.converge()
-	return client.UpdateDomainRecords(r.Customer, r.Domain, r.Records)
-=======
 	log.Println("Creating", r.Domain, "domain records...")
 	r.converge()
 	if err := client.UpdateDomainRecords(r.Customer, r.Domain, r.Records); err != nil {
@@ -283,7 +278,6 @@ func resourceDomainRecordUpdate(_ context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 	return nil
->>>>>>> Stashed changes
 }
 
 func resourceDomainRecordRestore(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -298,14 +292,10 @@ func resourceDomainRecordRestore(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	log.Println("Restoring", r.Domain, "domain records...")
-<<<<<<< Updated upstream
-	return client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords)
-=======
 	if err := client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
->>>>>>> Stashed changes
 }
 
 func populateDomainInfo(client *api.Client, r *domainRecordResource, d *schema.ResourceData) error {

@@ -66,15 +66,9 @@ func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, e
 	return records, nil
 }
 
-<<<<<<< Updated upstream
-// UpdateDomainRecords replaces all of the existing records for the provided domain
-func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
-	for _, t := range supportedTypes {
-=======
 // UpdateDomainRecords adds records or replaces all existing records for the provided domain
 func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
 	for t := range supportedTypes {
->>>>>>> Stashed changes
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
 			continue
