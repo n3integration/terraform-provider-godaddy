@@ -5,8 +5,8 @@
 [![Codeship Status for n3integration/terraform-provider-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
 
 <dl>
-  <dt>Terraform v1.3.0</dt>
-  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.9.0</dd>
+  <dt>Terraform v1.3.x</dt>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.9.1</dd>
   <dt>Terraform v0.14.x</dt>
   <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.8.7</dd>
   <dt>Terraform v0.12.x</dt>
