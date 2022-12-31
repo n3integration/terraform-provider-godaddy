@@ -2,15 +2,19 @@
 # ==================== [START] Global Variable Declaration =================== #
 SHELL := /bin/bash
 # 'shell' removes newlines
+ARCH := $(shell go env GOARCH)
+
 BASE_DIR := $(shell pwd)
 
-BINARY := "terraform-provider-godaddy"
-
 COMMIT := $(shell git rev-parse --short HEAD)
+
+OS := $(shell go env GOOS)
 
 UNAME_S := $(shell uname -s)
 
 VERSION := $(shell grep "version=" install.sh | cut -d= -f2)
+
+BINARY := "terraform-provider-godaddy_v$(VERSION)"
 
 # exports all variables
 export
@@ -30,8 +34,7 @@ docs:
 local:
 	go build -o $(BINARY) -ldflags='-s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT)' .
 	rm -rf ~/.terraform/plugins/terraform-godaddy
-	rm -rf ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/terraform-provider-godaddy
-	mkdir -p ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/
-	mv $(BINARY) ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/
-	chmod +x ~/.terraform.d/plugins/github.com/n3integration/godaddy/$(VERSION)/darwin_amd64/$(BINARY)
-
+	rm -rf ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/$(OS)_$(ARCH)
+	mkdir -p ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/$(OS)_$(ARCH)/
+	mv $(BINARY) ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/$(OS)_$(ARCH)/
+	chmod +x ~/.terraform.d/plugins/registry.terraform.io/n3integration/godaddy/$(VERSION)/$(OS)_$(ARCH)/$(BINARY)

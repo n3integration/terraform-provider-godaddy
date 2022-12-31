@@ -9,14 +9,12 @@ import (
 	"strings"
 )
 
-var (
+const (
+	defaultLimit = 500
+  
 	pathDomainRecords       = "%s/v1/domains/%s/records?limit=%d&offset=%d"
 	pathDomainRecordsByType = "%s/v1/domains/%s/records/%s"
 	pathDomains             = "%s/v1/domains/%s"
-)
-
-const (
-	defaultLimit = 500
 )
 
 // GetDomains fetches the details for the provided domain
@@ -53,7 +51,7 @@ func (c *Client) GetDomain(customerID, domain string) (*Domain, error) {
 	return d, nil
 }
 
-// GetDomainRecords fetches all of the existing records for the provided domain
+// GetDomainRecords fetches all existing records for the provided domain
 func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
 	offset := 1
 	records := make([]*DomainRecord, 0)
@@ -79,9 +77,9 @@ func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, e
 	return records, nil
 }
 
-// UpdateDomainRecords replaces all of the existing records for the provided domain
+// UpdateDomainRecords adds records or replaces all existing records for the provided domain
 func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
-	for _, t := range supportedTypes {
+	for t := range supportedTypes {
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
 			continue
@@ -92,8 +90,9 @@ func (c *Client) UpdateDomainRecords(customerID, domain string, records []*Domai
 			return err
 		}
 
-		buffer := bytes.NewBuffer(msg)
 		domainURL := fmt.Sprintf(pathDomainRecordsByType, c.baseURL, domain, t)
+		buffer := bytes.NewBuffer(msg)
+
 		log.Println(domainURL)
 		log.Println(buffer)
 
