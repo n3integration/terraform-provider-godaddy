@@ -24,6 +24,7 @@ description: |-
 - `addresses` (List of String)
 - `customer` (String)
 - `nameservers` (List of String)
+- `overwrite` (Boolean)
 - `record` (Block Set) (see [below for nested schema](#nestedblock--record))
 
 ### Read-Only

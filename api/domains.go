@@ -66,9 +66,40 @@ func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, e
 	return records, nil
 }
 
-// DEPRECATED: UpdateDomainRecords replaces all of the existing records for the provided domain
-// UpdateDomainRecords adds records or replaces all of the existing records for the provided domain
-func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
+// AddDomainRecords adds records without affecting existing ones on the provided domain
+func (c *Client) AddDomainRecords(customerID, domain string, records []*DomainRecord) error {
+	for _, t := range supportedTypes {
+		typeRecords := c.domainRecordsOfType(t, records)
+		if IsDisallowed(t, typeRecords) {
+			continue
+		}
+
+		msg, err := json.Marshal(typeRecords)
+		if err != nil {
+			return err
+		}
+
+		buffer := bytes.NewBuffer(msg)
+		domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
+		log.Println(domainURL)
+		log.Println(buffer)
+
+		// set method to patch to only add records
+		// for more info check: https://developer.godaddy.com/doc/endpoint/domains#/v1/recordAdd
+		req, err := http.NewRequest(http.MethodPatch, domainURL, buffer)
+		if err != nil {
+			return err
+		}
+
+		if err := c.execute(customerID, req, nil); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *Client) ReplaceDomainRecords(customerID, domain string, records []*DomainRecord) error {
 	for _, t := range supportedTypes {
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
@@ -85,10 +116,9 @@ func (c *Client) UpdateDomainRecords(customerID, domain string, records []*Domai
 		log.Println(domainURL)
 		log.Println(buffer)
 
-		// by default set method to patch to only add records
-
-		req, err := http.NewRequest(http.MethodPatch, domainURL, buffer)
-		// req, err := http.NewRequest(http.MethodPut, domainURL, buffer)
+		// set method to put to replace all existing records
+		// for more info check: https://developer.godaddy.com/doc/endpoint/domains#/v1/recordReplaceType
+		req, err := http.NewRequest(http.MethodPut, domainURL, buffer)
 		if err != nil {
 			return err
 		}
