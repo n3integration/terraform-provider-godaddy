@@ -3,8 +3,6 @@
 
 [ ![Codeship Status for n3integration/terraform-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
 
-### Important:
-**This repo is still work in progress**
 
 <dl>
   <dt>Terraform v0.14.x</dt>
@@ -70,6 +68,10 @@ resource "godaddy_domain_record" "gd-fancy-domain" {
 
   // required if provider key does not belong to customer
   customer = "1234"
+
+  // set to false to simply add records on the provided domain
+  // set to true to replace all existing records with the ones provided here
+  overwrite = false
 
   // specify zero or more record blocks
   // a record block allows you to configure A, or NS records with a custom time-to-live value
