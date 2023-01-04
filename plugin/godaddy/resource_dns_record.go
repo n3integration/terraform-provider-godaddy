@@ -253,9 +253,16 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	overwrite := d.Get(attrOverwrite).(bool)
 	if overwrite {
-		return client.ReplaceDomainRecords(r.Customer, r.Domain, r.Records)
+		err = client.ReplaceDomainRecords(r.Customer, r.Domain, r.Records)
 	} else {
-		return client.AddDomainRecords(r.Customer, r.Domain, r.Records)
+		err = client.AddDomainRecords(r.Customer, r.Domain, r.Records)
+	}
+
+	if err != nil {
+		return err
+	} else {
+		// Implement read to populate the Terraform state to its current state after the resource creation
+		return resourceDomainRecordRead(d, meta)
 	}
 }
 

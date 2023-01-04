@@ -38,7 +38,7 @@ func TestGetRecords(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 
-	getRecords(t, client, "annakampani.com")
+	getRecords(t, client, "n3integration.com")
 }
 
 func TestGetTooManyRecords(t *testing.T) {
@@ -47,7 +47,7 @@ func TestGetTooManyRecords(t *testing.T) {
 	assert.NotNil(t, client)
 
 	for i := 0; i < 75; i++ {
-		_, err := getRecords(t, client, "annakampani.com")
+		_, err := getRecords(t, client, "n3integration.com")
 		if err != nil {
 			fmt.Println("Requests failing at", i+1)
 		}
@@ -62,14 +62,14 @@ func TestPatchRecords(t *testing.T) {
 	record, err := NewDomainRecord(
 		"test",
 		"CNAME",
-		"origin.azurewebsites.net",
+		"test.net",
 		3600,
 	)
 
 	patchRecords(
 		t,
 		client,
-		"annakampani.com",
+		"n3integration.com",
 		[]*DomainRecord{
 			record,
 		},
