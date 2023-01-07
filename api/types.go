@@ -78,8 +78,16 @@ const (
 	TXTType   = "TXT"
 )
 
-var supportedTypes = []string{
-	AType, AAAAType, CAAType, CNameType, MXType, NSType, SOAType, SRVType, TXTType,
+var supportedTypes = map[string]struct{}{
+	AType:     {},
+	AAAAType:  {},
+	CAAType:   {},
+	CNameType: {},
+	MXType:    {},
+	NSType:    {},
+	SOAType:   {},
+	SRVType:   {},
+	TXTType:   {},
 }
 
 // Domain encapsulates a domain resource
@@ -126,8 +134,12 @@ func NewDomainRecord(name, t, data string, ttl int, opts ...DomainRecordOpt) (*D
 	if ttl < 0 {
 		return nil, errors.New("ttl must be a positive value")
 	}
-	if !isSupportedType(t) {
-		return nil, fmt.Errorf("type must be one of: %s", supportedTypes)
+	if !IsSupportedType(t) {
+		var types []string
+		for t := range supportedTypes {
+			types = append(types, t)
+		}
+		return nil, fmt.Errorf("type must be one of: %s", types)
 	}
 	dr := &DomainRecord{
 		Name: name,
@@ -260,11 +272,10 @@ func IsDisallowed(t string, records []*DomainRecord) bool {
 	return len(records) == 0 && strings.EqualFold(t, NSType) || strings.EqualFold(t, SOAType) || strings.EqualFold(t, CAAType)
 }
 
-func isSupportedType(recType string) bool {
-	for _, t := range supportedTypes {
-		if t == recType {
-			return true
-		}
+// IsSupportedType is a predicate used to filter supported domain types
+func IsSupportedType(recType string) bool {
+	if _, ok := supportedTypes[recType]; ok {
+		return true
 	}
 	return false
 }

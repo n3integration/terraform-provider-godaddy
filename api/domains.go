@@ -9,8 +9,10 @@ import (
 	"strings"
 )
 
-var (
-	pathDomainRecords       = "%s/v1/domains/%s/records"
+const (
+	defaultLimit = 500
+  
+	pathDomainRecords       = "%s/v1/domains/%s/records?limit=%d&offset=%d"
 	pathDomainRecordsByType = "%s/v1/domains/%s/records/%s"
 	pathDomains             = "%s/v1/domains/%s"
 )
@@ -49,18 +51,27 @@ func (c *Client) GetDomain(customerID, domain string) (*Domain, error) {
 	return d, nil
 }
 
-// GetDomainRecords fetches all of the existing records for the provided domain
+// GetDomainRecords fetches all existing records for the provided domain
 func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, error) {
-	domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
-	req, err := http.NewRequest(http.MethodGet, domainURL, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
+	offset := 1
 	records := make([]*DomainRecord, 0)
-	if err := c.execute(customerID, req, &records); err != nil {
-		return nil, err
+	for {
+		page := make([]*DomainRecord, 0)
+		domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain, defaultLimit, offset)
+		req, err := http.NewRequest(http.MethodGet, domainURL, nil)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if err := c.execute(customerID, req, &page); err != nil {
+			return nil, err
+		}
+		if len(page) == 0 {
+			break
+		}
+		offset += 1
+		records = append(records, page...)
 	}
 
 	return records, nil
@@ -112,8 +123,9 @@ func (c *Client) ReplaceDomainRecords(customerID, domain string, records []*Doma
 			return err
 		}
 
-		buffer := bytes.NewBuffer(msg)
 		domainURL := fmt.Sprintf(pathDomainRecordsByType, c.baseURL, domain, t)
+		buffer := bytes.NewBuffer(msg)
+
 		log.Println(domainURL)
 		log.Println(buffer)
 
