@@ -13,6 +13,8 @@ const (
 	defaultLimit = 500
 
 	pathDomainRecords       = "%s/v1/domains/%s/records?limit=%d&offset=%d"
+	pathDomainRecordsAdd    = "%s/v1/domains/%s/records"
+	pathDomainRecordsUpdate = "%s/v1/domains/%s/records/%s/%s"
 	pathDomainRecordsByType = "%s/v1/domains/%s/records/%s"
 	pathDomains             = "%s/v1/domains/%s"
 )
@@ -91,7 +93,7 @@ func (c *Client) AddDomainRecords(customerID, domain string, records []*DomainRe
 		}
 
 		buffer := bytes.NewBuffer(msg)
-		domainURL := fmt.Sprintf(pathDomainRecords, c.baseURL, domain)
+		domainURL := fmt.Sprintf(pathDomainRecordsAdd, c.baseURL, domain)
 		log.Println(domainURL)
 		log.Println(buffer)
 
@@ -131,6 +133,38 @@ func (c *Client) ReplaceDomainRecords(customerID, domain string, records []*Doma
 
 		// set method to put to replace all existing records
 		// for more info check: https://developer.godaddy.com/doc/endpoint/domains#/v1/recordReplaceType
+		req, err := http.NewRequest(http.MethodPut, domainURL, buffer)
+		if err != nil {
+			return err
+		}
+
+		if err := c.execute(customerID, req, nil); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// AddDomainRecords adds records without affecting existing ones on the provided domain
+func (c *Client) UpdateDomainRecords(customerID, domain string, records []*DomainRecord) error {
+	for _, rec := range records {
+		// typeRecords := c.domainRecordsOfType(t, records)
+		t := rec.Type
+		// if IsDisallowed(t, typeRecords) {
+		// 	continue
+		// }
+
+		msg, err := json.Marshal([]*DomainRecord{rec})
+		if err != nil {
+			return err
+		}
+
+		buffer := bytes.NewBuffer(msg)
+		domainURL := fmt.Sprintf(pathDomainRecordsUpdate, c.baseURL, domain, t, rec.Name)
+		log.Println(domainURL)
+		log.Println(buffer)
+
 		req, err := http.NewRequest(http.MethodPut, domainURL, buffer)
 		if err != nil {
 			return err
