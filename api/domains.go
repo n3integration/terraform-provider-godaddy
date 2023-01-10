@@ -79,7 +79,7 @@ func (c *Client) GetDomainRecords(customerID, domain string) ([]*DomainRecord, e
 
 // AddDomainRecords adds records without affecting existing ones on the provided domain
 func (c *Client) AddDomainRecords(customerID, domain string, records []*DomainRecord) error {
-	for _, t := range supportedTypes {
+	for t := range supportedTypes {
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
 			continue
@@ -112,7 +112,7 @@ func (c *Client) AddDomainRecords(customerID, domain string, records []*DomainRe
 
 // ReplaceDomainRecords overwrites all existing records with the ones provided
 func (c *Client) ReplaceDomainRecords(customerID, domain string, records []*DomainRecord) error {
-	for _, t := range supportedTypes {
+	for t := range supportedTypes {
 		typeRecords := c.domainRecordsOfType(t, records)
 		if IsDisallowed(t, typeRecords) {
 			continue

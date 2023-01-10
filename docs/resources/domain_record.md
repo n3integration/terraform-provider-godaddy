@@ -22,7 +22,7 @@ description: |-
 ### Optional
 
 - `addresses` (List of String)
-- `customer` (String)
+- `customer` (String) Customer ID (required if you are a reseller managing a domain purchased outside the scope of your reseller account).
 - `nameservers` (List of String)
 - `overwrite` (Boolean)
 - `record` (Block Set) (see [below for nested schema](#nestedblock--record))
@@ -48,8 +48,4 @@ Optional:
 - `service` (String)
 - `ttl` (Number)
 - `weight` (Number)
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 80017d08661610c1f99a37082273879949e66e11
