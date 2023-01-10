@@ -48,4 +48,3 @@ Optional:
 - `service` (String)
 - `ttl` (Number)
 - `weight` (Number)
-
