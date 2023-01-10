@@ -1,31 +1,34 @@
-# terraform-godaddy
+# terraform-provider-godaddy
 [Terraform](https://www.terraform.io/) plugin for managing domain records
 
-[ ![Codeship Status for n3integration/terraform-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
+[![Release Status for n3integration/terraform-provider-godaddy](https://github.com/n3integration/terraform-provider-godaddy/workflows/release/badge.svg)](https://github.com/n3integration/terraform-provider-godaddy/actions)
+[![Codeship Status for n3integration/terraform-provider-godaddy](https://app.codeship.com/projects/29e8c490-8b5d-0134-914d-3e63d62140d1/status?branch=master)](https://app.codeship.com/projects/184616)
 
 
 <dl>
+  <dt>Terraform v1.3.0</dt>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.9.0</dd>
   <dt>Terraform v0.14.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.8.7</dd>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.8.7</dd>
   <dt>Terraform v0.12.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.7.3</dd>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.7.3</dd>
   <dt>Terraform v0.11.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.6.4</dd>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.6.4</dd>
   <dt>Terraform v0.10.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.5.0</dd>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.5.0</dd>
   <dt>Terraform v0.9.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.3.0</dd>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.3.0</dd>
   <dt>Terraform v0.8.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.2.3</dd>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.2.3</dd>
   <dt>Terraform v0.7.x</dt>
-  <dd>https://github.com/n3integration/terraform-godaddy/releases/tag/v1.0.0</dd>
-<dl>
+  <dd>https://github.com/n3integration/terraform-provider-godaddy/releases/tag/v1.0.0</dd>
+</dl>
 
 ### Installation steps for Terraform Cloud
-1. Download latest release for `linux_amd64` from https://github.com/n3integration/terraform-godaddy/releases
-2. Unpack to `<Project Folder>/terraform.d/plugins/linux_amd64`.
+1. Download the latest `linux_amd64` release from https://github.com/n3integration/terraform-provider-godaddy/releases
+2. Unpack to `<project folder>/terraform.d/plugins/linux_amd64`.
 3. Rename to match naming scheme: `terraform-provider-<NAME>_vX.Y.Z` https://www.terraform.io/docs/configuration/providers.html#third-party-plugins
-4. Run `terraform init` to make sure the provider works.
+4. Run `terraform init` to make sure the provider is initialized properly.
 
 ## API Key
 In order to leverage the GoDaddy APIs, an [API key](https://developer.godaddy.com/keys/) is required. The key pair can be optionally stored in environment variables.
@@ -124,9 +127,14 @@ through `terraform plan` and update the resource configuration accordingly to pr
 be the name of the domain that you would like to import. Although this is currently a manual workaround, this plugin will be updated when Terraform includes support for
 fully automated imports.
 
+#### Import Example
+```bash
+terraform import godaddy_domain_record.gd-fancy-domain fancy-domain.com
+```
+
 ## License
 
-Copyright 2021 n3integration@gmail.com
+Copyright 2023 n3integration@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -1,11 +1,13 @@
 package godaddy
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/n3integration/terraform-provider-godaddy/api"
 )
@@ -128,12 +130,12 @@ func (r *domainRecordResource) mergeRecords(list []string, factory api.RecordFac
 
 func resourceDomainRecord() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDomainRecordUpdate,
-		Read:   resourceDomainRecordRead,
-		Update: resourceDomainRecordUpdate,
-		Delete: resourceDomainRecordRestore,
+		CreateContext: resourceDomainRecordCreate,
+		ReadContext:   resourceDomainRecordRead,
+		UpdateContext: resourceDomainRecordUpdate,
+		DeleteContext: resourceDomainRecordRestore,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -213,39 +215,66 @@ func resourceDomainRecord() *schema.Resource {
 	}
 }
 
-func resourceDomainRecordRead(d *schema.ResourceData, meta interface{}) error {
+func resourceDomainRecordRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	customer := d.Get(attrCustomer).(string)
 	domain := d.Get(attrDomain).(string)
 	r, err := newDomainRecordResource(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Importer support
 	if domain == "" {
-		domain = d.Id()
+		r.Domain = d.Id()
+		domain = r.Domain
 	}
 
 	log.Println("Fetching", domain, "records...")
 	records, err := client.GetDomainRecords(customer, domain)
 	if err != nil {
-		return fmt.Errorf("couldn't find domain record (%s): %s", domain, err.Error())
+		return diag.FromErr(fmt.Errorf("couldn't find domain record (%s): %s", domain, err.Error()))
 	}
 
 	r.converge()
-	return populateResourceDataFromResponse(records, r, d)
+	if err := populateResourceDataFromResponse(records, r, d); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := populateDomainInfo(client, r, d); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
 }
 
-func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceDomainRecordCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	r, err := newDomainRecordResource(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err = populateDomainInfo(client, r, d); err != nil {
-		return err
+		return diag.FromErr(err)
+	}
+
+	log.Println("Creating", r.Domain, "domain records...")
+	r.converge()
+	if err := client.UpdateDomainRecords(r.Customer, r.Domain, r.Records); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
+}
+
+func resourceDomainRecordUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*api.Client)
+	r, err := newDomainRecordResource(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err = populateDomainInfo(client, r, d); err != nil {
+		return diag.FromErr(err)
 	}
 
 	log.Println("Updating", r.Domain, "domain records...")
@@ -266,15 +295,15 @@ func resourceDomainRecordUpdate(d *schema.ResourceData, meta interface{}) error 
 	}
 }
 
-func resourceDomainRecordRestore(d *schema.ResourceData, meta interface{}) error {
+func resourceDomainRecordRestore(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	r, err := newDomainRecordResource(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err = populateDomainInfo(client, r, d); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Println("Restoring", r.Domain, "domain records...")
@@ -304,6 +333,7 @@ func populateDomainInfo(client *api.Client, r *domainRecordResource, d *schema.R
 func populateResourceDataFromResponse(recs []*api.DomainRecord, r *domainRecordResource, d *schema.ResourceData) error {
 	aRecords := make([]string, 0)
 	nsRecords := make([]string, 0)
+	domain := d.Get(attrDomain).(string)
 	records := make([]*api.DomainRecord, 0)
 
 	for _, rec := range recs {
@@ -321,7 +351,7 @@ func populateResourceDataFromResponse(recs []*api.DomainRecord, r *domainRecordR
 		return err
 	}
 
-	if r.ReplaceNSRecords {
+	if r.ReplaceNSRecords || domain == "" {
 		if err := d.Set(attrNameservers, nsRecords); err != nil {
 			return err
 		}
@@ -329,6 +359,10 @@ func populateResourceDataFromResponse(recs []*api.DomainRecord, r *domainRecordR
 
 	if err := d.Set(attrRecord, flattenRecords(records)); err != nil {
 		return err
+	}
+
+	if domain == "" {
+		d.Set(attrDomain, d.Id())
 	}
 
 	return nil
