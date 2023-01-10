@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version=1.8.7
+version=1.9.0
 
 os=$(uname -s | tr '[:upper:]' '[:lower:]')
 mach=$(uname -m)
