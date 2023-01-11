@@ -18,6 +18,7 @@ const (
 	attrRecord      = "record"
 	attrAddresses   = "addresses"
 	attrNameservers = "nameservers"
+	attrOverwrite   = "overwrite"
 
 	recName     = "name"
 	recType     = "type"
@@ -158,6 +159,10 @@ func resourceDomainRecord() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			attrOverwrite: {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			attrRecord: {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -214,6 +219,9 @@ func resourceDomainRecordRead(_ context.Context, d *schema.ResourceData, meta in
 	client := meta.(*api.Client)
 	customer := d.Get(attrCustomer).(string)
 	domain := d.Get(attrDomain).(string)
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
 	r, err := newDomainRecordResource(d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -239,11 +247,14 @@ func resourceDomainRecordRead(_ context.Context, d *schema.ResourceData, meta in
 	if err := populateDomainInfo(client, r, d); err != nil {
 		return diag.FromErr(err)
 	}
-	return nil
+	return diags
 }
 
-func resourceDomainRecordCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRecordCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+	// Warning or errors can be collected in a slice type
+	var diags diag.Diagnostics
+
 	r, err := newDomainRecordResource(d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -255,13 +266,23 @@ func resourceDomainRecordCreate(_ context.Context, d *schema.ResourceData, meta 
 
 	log.Println("Creating", r.Domain, "domain records...")
 	r.converge()
-	if err := client.UpdateDomainRecords(r.Customer, r.Domain, r.Records); err != nil {
+	overwrite := d.Get(attrOverwrite).(bool)
+	if overwrite {
+		err = client.ReplaceDomainRecords(r.Customer, r.Domain, r.Records)
+	} else {
+		err = client.AddDomainRecords(r.Customer, r.Domain, r.Records)
+	}
+
+	if err != nil {
 		return diag.FromErr(err)
 	}
-	return nil
+	// Implement read to populate the Terraform state to its current state after the resource creation
+	resourceDomainRecordRead(ctx, d, meta)
+
+	return diags
 }
 
-func resourceDomainRecordUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRecordUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	r, err := newDomainRecordResource(d)
 	if err != nil {
@@ -274,13 +295,22 @@ func resourceDomainRecordUpdate(_ context.Context, d *schema.ResourceData, meta 
 
 	log.Println("Updating", r.Domain, "domain records...")
 	r.converge()
-	if err := client.UpdateDomainRecords(r.Customer, r.Domain, r.Records); err != nil {
+
+	overwrite := d.Get(attrOverwrite).(bool)
+	if overwrite {
+		err = client.ReplaceDomainRecords(r.Customer, r.Domain, r.Records)
+	} else {
+		err = client.UpdateDomainRecords(r.Customer, r.Domain, r.Records)
+	}
+
+	if err != nil {
 		return diag.FromErr(err)
 	}
-	return nil
+	// Implement read to populate the Terraform state to its current state after the resource creation
+	return resourceDomainRecordRead(ctx, d, meta)
 }
 
-func resourceDomainRecordRestore(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRecordRestore(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	r, err := newDomainRecordResource(d)
 	if err != nil {
@@ -292,10 +322,20 @@ func resourceDomainRecordRestore(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	log.Println("Restoring", r.Domain, "domain records...")
-	if err := client.UpdateDomainRecords(r.Customer, r.Domain, defaultRecords); err != nil {
+
+	overwrite := d.Get(attrOverwrite).(bool)
+	if overwrite {
+		err = client.ReplaceDomainRecords(r.Customer, r.Domain, r.Records)
+	} else {
+		err = client.AddDomainRecords(r.Customer, r.Domain, r.Records)
+	}
+
+	if err != nil {
 		return diag.FromErr(err)
 	}
-	return nil
+	// Implement read to populate the Terraform state to its current state after the resource creation
+	return resourceDomainRecordRead(ctx, d, meta)
+
 }
 
 func populateDomainInfo(client *api.Client, r *domainRecordResource, d *schema.ResourceData) error {

@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package api
@@ -53,6 +54,29 @@ func TestGetTooManyRecords(t *testing.T) {
 	}
 }
 
+func TestPatchRecords(t *testing.T) {
+	client, err := NewClient(baseURL, key, secret)
+	assert.Nil(t, err)
+	assert.NotNil(t, client)
+
+	record, err := NewDomainRecord(
+		"test",
+		"CNAME",
+		"test.net",
+		3600,
+	)
+
+	patchRecords(
+		t,
+		client,
+		"n3integration.com",
+		[]*DomainRecord{
+			record,
+		},
+	)
+
+}
+
 func getRecords(t *testing.T, client *Client, domain string) ([]*DomainRecord, error) {
 	records, err := client.GetDomainRecords("", domain)
 	assert.Nil(t, err)
@@ -67,4 +91,11 @@ func getRecords(t *testing.T, client *Client, domain string) ([]*DomainRecord, e
 	}
 
 	return records, err
+}
+
+func patchRecords(t *testing.T, client *Client, domain string, records []*DomainRecord) error {
+	err := client.AddDomainRecords("", domain, records)
+	assert.Nil(t, err)
+
+	return err
 }
